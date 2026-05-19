@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react"
-import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import { toast } from "sonner"
 import { ProtectedRoute, GuestRoute } from "@/components/ProtectedRoute"
 import AppHeader from "@/components/sidebar/app-header"
@@ -37,6 +37,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+          {/* Root redirect — GuestRoute bounces authenticated users to /dashboard */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+
           {/* Public routes — redirect to dashboard if already logged in */}
           <Route element={<GuestRoute />}>
             <Route path="/login" element={<Login />} />
