@@ -1,0 +1,27 @@
+{
+  "stats": {
+    "total":        87,
+    "confirmed":    54,
+    "completed":    28,
+    "cancelled":     3,
+    "noShows":       5,
+    "noShowsTrend":  2
+  },
+  "statCards": [
+    { "title": "Today's Total", "valueKey": "total",     "icon": "CalendarDays",  "trend": "up",   "trendValue": "",    "description": "All bookings", "valueColor": "default" },
+    { "title": "Confirmed",     "valueKey": "confirmed", "icon": "CheckCircle2",  "trend": "up",   "trendType": "pct", "description": "of total",     "valueColor": "teal" },
+    { "title": "Completed",     "valueKey": "completed", "icon": "CheckCircle2",  "trend": "up",   "trendType": "pct", "description": "of total",     "valueColor": "green" },
+    { "title": "Cancelled",     "valueKey": "cancelled", "icon": "XCircle",       "trend": "down", "trendType": "pct", "description": "of total",     "valueColor": "orange" },
+    { "title": "No-Shows",      "valueKey": "noShows",   "icon": "AlertTriangle", "warning": true, "trendKey": "noShowsTrend", "description": "vs yesterday", "valueColor": "red" }
+  ],
+  "bookings": [
+    { "id": 1023, "customer": { "name": "Sarah Khan",    "phone": "0300-1234567" }, "salon": "Glow Beauty Salon", "service": "Haircut",         "dateTime": "Apr 22 · 10:00 AM", "date": "2026-04-22", "price": "Rs. 800",   "status": "Confirmed" },
+    { "id": 1022, "customer": { "name": "Ahmad Ali",     "phone": "0321-9876543" }, "salon": "Elite Men's Salon", "service": "Beard Trim",      "dateTime": "Apr 22 · 2:00 PM",  "date": "2026-04-22", "price": "Rs. 300",   "status": "No-Show" },
+    { "id": 1021, "customer": { "name": "Fatima Malik",  "phone": "0311-5556677" }, "salon": "Glow Beauty Salon", "service": "Facial",          "dateTime": "Apr 22 · 11:00 AM", "date": "2026-04-22", "price": "Rs. 1,550", "status": "Completed" },
+    { "id": 1020, "customer": { "name": "Usman Raza",    "phone": "0333-4445566" }, "salon": "Star Barber Shop",  "service": "Haircut + Beard", "dateTime": "Apr 22 · 3:00 PM",  "date": "2026-04-22", "price": "Rs. 900",   "status": "Cancelled" },
+    { "id": 1019, "customer": { "name": "Ayesha Noor",   "phone": "0322-3344556" }, "salon": "Bliss Salon",       "service": "Hair Color",      "dateTime": "Apr 21 · 9:00 AM",  "date": "2026-04-21", "price": "Rs. 2,500", "status": "Confirmed" },
+    { "id": 1018, "customer": { "name": "Bilal Shah",    "phone": "0345-9988776" }, "salon": "Fade Masters",      "service": "Shave",           "dateTime": "Apr 21 · 1:00 PM",  "date": "2026-04-21", "price": "Rs. 200",   "status": "Completed" },
+    { "id": 1017, "customer": { "name": "Sana Mirza",    "phone": "0303-6655443" }, "salon": "The Curl Studio",   "service": "Blow Dry",        "dateTime": "Apr 21 · 4:00 PM",  "date": "2026-04-21", "price": "Rs. 700",   "status": "Completed" },
+    { "id": 1016, "customer": { "name": "Kamran Baig",   "phone": "0344-8877665" }, "salon": "Elite Men's Salon", "service": "Haircut",         "dateTime": "Apr 20 · 11:00 AM", "date": "2026-04-20", "price": "Rs. 800",   "status": "Confirmed" }
+  ]
+}

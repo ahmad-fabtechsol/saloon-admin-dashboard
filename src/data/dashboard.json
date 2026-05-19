@@ -1,0 +1,60 @@
+{
+  "stats": [
+    {
+      "title": "Total Salons",
+      "value": "128",
+      "icon": "Scissors",
+      "trend": "up",
+      "trendValue": "+12%",
+      "description": "vs last month"
+    },
+    {
+      "title": "Total Customers",
+      "value": "1,234",
+      "icon": "Users",
+      "trend": "up",
+      "trendValue": "+8%",
+      "description": "vs last month",
+      "valueColor": "teal"
+    },
+    {
+      "title": "Bookings Today",
+      "value": "87",
+      "icon": "CalendarDays",
+      "trend": "down",
+      "trendValue": "-3%",
+      "description": "vs yesterday",
+      "valueColor": "orange"
+    },
+    {
+      "title": "Revenue (MTD)",
+      "value": "₨ 2.4M",
+      "icon": "TrendingUp",
+      "trend": "up",
+      "trendValue": "+18%",
+      "description": "vs last month",
+      "valueColor": "green"
+    },
+    {
+      "title": "No Show Today",
+      "value": "5",
+      "icon": "TrendingDown",
+      "trend": "up",
+      "trendValue": "2",
+      "description": "vs yesterday",
+      "valueColor": "red"
+    }
+  ],
+  "activities": [
+    { "id": 1, "name": "Elite Men's Salon",  "action": "submitted for review",          "time": "2h ago", "dot": "bg-orange-500" },
+    { "id": 2, "name": "Sarah Khan",         "action": "created an account",             "time": "3h ago", "dot": "bg-blue-500" },
+    { "id": 3, "name": "Glow Beauty Salon",  "action": "was approved",                   "time": "5h ago", "dot": "bg-emerald-500" },
+    { "id": 4, "name": "Ahmad Ali",          "action": "got 3rd no-show — suspended",    "time": "6h ago", "dot": "bg-red-500" },
+    { "id": 5, "name": "Star Barber Shop",   "action": "submitted for review",           "time": "8h ago", "dot": "bg-orange-500" }
+  ],
+  "pendingApprovals": [
+    { "id": 1, "name": "Elite Men's Salon",   "city": "Sialkot",    "time": "2h ago" },
+    { "id": 2, "name": "Glow Beauty Parlour", "city": "Lahore",     "time": "5h ago" },
+    { "id": 3, "name": "Star Barber Shop",    "city": "Faisalabad", "time": "8h ago" }
+  ]
+}

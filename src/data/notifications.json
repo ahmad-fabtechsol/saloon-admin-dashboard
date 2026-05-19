@@ -1,0 +1,14 @@
+[
+  { "id": 1,  "type": "Booking",  "message": "Appointment #1042 confirmed by Sarah Khan",         "time": "2 min ago",  "status": "Unread" },
+  { "id": 2,  "type": "Salon",    "message": "Elite Cuts updated their salon profile",             "time": "1 hr ago",   "status": "Unread" },
+  { "id": 3,  "type": "Customer", "message": "Sara Ahmed registered a new account",               "time": "3 hr ago",   "status": "Read" },
+  { "id": 4,  "type": "Salon",    "message": "Glow Beauty Parlour submitted for review",          "time": "5 hr ago",   "status": "Unread" },
+  { "id": 5,  "type": "Booking",  "message": "Ahmad Ali marked as No-Show on booking #1022",     "time": "6 hr ago",   "status": "Read" },
+  { "id": 6,  "type": "System",   "message": "3 salons are pending approval for over 24 hours",  "time": "8 hr ago",   "status": "Unread" },
+  { "id": 7,  "type": "Customer", "message": "Kamran Shah account was blocked (3 no-shows)",     "time": "10 hr ago",  "status": "Read" },
+  { "id": 8,  "type": "Salon",    "message": "Star Barber Shop was approved by admin",           "time": "12 hr ago",  "status": "Read" },
+  { "id": 9,  "type": "Booking",  "message": "Appointment #1019 completed at Bliss Salon",       "time": "1 day ago",  "status": "Read" },
+  { "id": 10, "type": "System",   "message": "Weekly report is ready to view",                   "time": "1 day ago",  "status": "Read" },
+  { "id": 11, "type": "Salon",    "message": "Classic Cuts account was suspended",               "time": "2 days ago", "status": "Read" },
+  { "id": 12, "type": "Customer", "message": "Rabia Farooq raised a support request",            "time": "2 days ago", "status": "Unread" }
+]
