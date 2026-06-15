@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-const BASE_URL = '';  // replace with your API base URL
+const BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'https://salon-be-wine.vercel.app/v1';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
@@ -26,6 +27,6 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Auth', 'User'],
+  tagTypes: ['Auth', 'User', 'Salon'],
   endpoints: () => ({}),
 });

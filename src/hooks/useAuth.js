@@ -14,18 +14,9 @@ export function useAuth() {
   const token = useSelector(selectToken)
   const isAuthenticated = useSelector(selectIsAuthenticated)
 
-  function login(email, password) {
-    dispatch(setCredentials({
-      user: { email, name: 'Admin User' },
-      token: 'mock-token',
-    }))
-  }
-
-  function signup(name, email, password) {
-    dispatch(setCredentials({
-      user: { email, name },
-      token: 'mock-token',
-    }))
+  // Persist a real session returned from the API.
+  function setSession({ user, token, refreshToken }) {
+    dispatch(setCredentials({ user, token, refreshToken }))
   }
 
   function logout() {
@@ -36,5 +27,5 @@ export function useAuth() {
     dispatch(updateUser(partial))
   }
 
-  return { user, token, isAuthenticated, login, signup, logout, patchUser }
+  return { user, token, isAuthenticated, setSession, logout, patchUser }
 }

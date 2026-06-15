@@ -3,7 +3,7 @@ import { FiCheckCircle, FiTrash2 } from "react-icons/fi"
 import { toast } from "sonner"
 import DynamicTable from "@/components/DynamicTable"
 import notifications from "@/data/notifications.json"
-import { actionColors, notificationFilters } from "@/lib/tableUtils"
+import { notificationFilters } from "@/lib/tableUtils"
 import { notificationColumns } from "@/lib/tableColumns"
 
 export default function Notifications() {
@@ -28,31 +28,19 @@ export default function Notifications() {
     toast.error("Notification deleted")
   }
 
-  const columns = [
-    ...notificationColumns,
+  const actions = [
     {
-      key: "id",
-      label: "Actions",
-      render: (_, row) => (
-        <div className="flex items-center gap-1.5">
-          {row.status === "Unread" && (
-            <button
-              title="Mark Read"
-              onClick={() => markRead(row)}
-              className={`rounded-md p-1.5 transition-colors ${actionColors.brand}`}
-            >
-              <FiCheckCircle size={14} />
-            </button>
-          )}
-          <button
-            title="Delete"
-            onClick={() => deleteNotification(row)}
-            className={`rounded-md p-1.5 transition-colors ${actionColors.red}`}
-          >
-            <FiTrash2 size={14} />
-          </button>
-        </div>
-      ),
+      label: "Mark as read",
+      icon: FiCheckCircle,
+      color: "brand",
+      show: (row) => row.status === "Unread",
+      onClick: (row) => markRead(row),
+    },
+    {
+      label: "Delete",
+      icon: FiTrash2,
+      color: "red",
+      onClick: (row) => deleteNotification(row),
     },
   ]
 
@@ -65,8 +53,10 @@ export default function Notifications() {
       onExport={markAllRead}
       filters={notificationFilters}
       filterKey="status"
-      columns={columns}
+      columns={notificationColumns}
       data={data}
+      actions={actions}
+      actionsVariant="menu"
     />
   )
 }

@@ -3,7 +3,6 @@ import {
   Ban,
   CalendarDays,
   CheckCircle2,
-  Clock,
   PauseCircle,
   Scissors,
   TrendingDown,
@@ -21,7 +20,18 @@ export const actionColors = {
   blue:    "border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100",
   green:   "border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100",
   red:     "border border-red-200 bg-red-50 text-red-600 hover:bg-red-100",
+  amber:   "border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100",
   default: "border border-border bg-muted text-foreground hover:bg-muted/80",
+}
+
+// Text colors for the same actions when rendered inside a dropdown menu.
+export const actionMenuColors = {
+  brand:   "text-[#145E94]",
+  blue:    "text-blue-600",
+  green:   "text-emerald-600",
+  red:     "text-red-600",
+  amber:   "text-amber-600",
+  default: "text-foreground",
 }
 
 // ─── StatsCard ────────────────────────────────────────────────────────────────
@@ -39,19 +49,21 @@ export const valueColors = {
 // Used by: Salons.jsx — status badge rendering and filter tab config
 // Column definitions with JSX renders live in tableColumns.jsx
 
+// Keyed by the API `status` value (lowercase). `label` is the display text.
 export const salonStatusConfig = {
-  Pending:   { icon: Clock,          cls: "bg-[#145E94]/10 text-[#145E94] ring-[#145E94]/20" },
-  Active:    { icon: CheckCircle2,   cls: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
-  Suspended: { icon: AlertTriangle,  cls: "bg-amber-50 text-amber-700 ring-amber-200" },
-  Rejected:  { icon: Ban,            cls: "bg-red-50 text-red-600 ring-red-200" },
+  pending:   { label: "Pending",   dot: "bg-amber-500 animate-pulse", cls: "bg-amber-50 text-amber-700 ring-amber-200" },
+  approved:  { label: "Approved",  dot: "bg-emerald-500",             cls: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
+  rejected:  { label: "Rejected",  dot: "bg-red-500",                 cls: "bg-red-50 text-red-600 ring-red-200" },
+  suspended: { label: "Suspended", dot: "bg-slate-400",               cls: "bg-slate-100 text-slate-600 ring-slate-200" },
 }
 
+// `value` is sent to the API as the `status` query param ("all" omits it).
 export const salonFilters = [
   { label: "All",       value: "all" },
-  { label: "Pending",   value: "Pending" },
-  { label: "Active",    value: "Active" },
-  { label: "Suspended", value: "Suspended" },
-  { label: "Rejected",  value: "Rejected" },
+  { label: "Pending",   value: "pending" },
+  { label: "Approved",  value: "approved" },
+  { label: "Rejected",  value: "rejected" },
+  { label: "Suspended", value: "suspended" },
 ]
 
 // ─── Customers ────────────────────────────────────────────────────────────────

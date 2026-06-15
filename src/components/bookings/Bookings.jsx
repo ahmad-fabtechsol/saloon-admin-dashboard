@@ -6,7 +6,7 @@ import { DateRangePicker } from "@/components/ui/date-range-picker"
 import DynamicTable from "@/components/DynamicTable"
 import StatsCard from "@/components/dashboard/StatsCard"
 import bookingsData from "@/data/bookings.json"
-import { actionColors, bookingFilters, dashboardIconMap } from "@/lib/tableUtils"
+import { bookingFilters, dashboardIconMap } from "@/lib/tableUtils"
 import { bookingColumns } from "@/lib/tableColumns"
 
 const { stats, statCards, bookings } = bookingsData
@@ -36,31 +36,19 @@ export default function Bookings() {
   }, [dateRange])
 
   // Context-sensitive actions: Flag only for No-Show bookings
-  const columns = [
-    ...bookingColumns,
+  const actions = [
     {
-      key: "id",
-      label: "Actions",
-      render: (_, row) => (
-        <div className="flex items-center gap-1.5">
-          <button
-            title="View"
-            onClick={() => navigate(`/booking-details/${row.id}`)}
-            className={`rounded-md p-1.5 transition-colors ${actionColors.brand}`}
-          >
-            <FiEye size={14} />
-          </button>
-          {row.status === "No-Show" && (
-            <button
-              title="Flag"
-              onClick={() => toast.warning(`Booking #${row.id} flagged as no-show`)}
-              className={`rounded-md p-1.5 transition-colors ${actionColors.red}`}
-            >
-              <FiFlag size={14} />
-            </button>
-          )}
-        </div>
-      ),
+      label: "View details",
+      icon: FiEye,
+      color: "brand",
+      onClick: (row) => navigate(`/booking-details/${row.id}`),
+    },
+    {
+      label: "Flag no-show",
+      icon: FiFlag,
+      color: "red",
+      show: (row) => row.status === "No-Show",
+      onClick: (row) => toast.warning(`Booking #${row.id} flagged as no-show`),
     },
   ]
 
@@ -92,8 +80,10 @@ export default function Bookings() {
         onExport={() => console.log("export")}
         filters={bookingFilters}
         filterKey="status"
-        columns={columns}
+        columns={bookingColumns}
         data={filteredData}
+        actions={actions}
+        actionsVariant="menu"
         headerExtra={
         <DateRangePicker range={dateRange} onChange={setDateRange} />
         }

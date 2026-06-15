@@ -29,7 +29,7 @@ import {
 
 const navMain = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "Salons", url: "/salons", icon: Scissors, badge: "3" },
+  { title: "Salons", url: "/salons", icon: Scissors },
   { title: "Customers", url: "/customers", icon: Users },
   { title: "Bookings", url: "/bookings", icon: CalendarDays },
 ]

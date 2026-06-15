@@ -16,7 +16,7 @@ import { baseApi } from './apiSlice';
 const persistConfig = {
   key: 'auth',
   storage,
-  whitelist: ['token', 'user'],
+  whitelist: ['token', 'user', 'refreshToken'],
 };
 
 const persistedAuthReducer = persistReducer(persistConfig, authReducer);

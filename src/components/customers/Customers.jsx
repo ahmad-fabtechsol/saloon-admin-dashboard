@@ -3,7 +3,7 @@ import { FiEye, FiUserCheck, FiUserX } from "react-icons/fi"
 import { toast } from "sonner"
 import DynamicTable from "@/components/DynamicTable"
 import customers from "@/data/customers.json"
-import { actionColors, customerFilters, customerStatusConfig } from "@/lib/tableUtils"
+import { customerFilters, customerStatusConfig } from "@/lib/tableUtils"
 
 
 export default function Customers() {
@@ -36,38 +36,28 @@ export default function Customers() {
         )
       },
     },
+  ]
+
+  const actions = [
     {
-      key: "id",
-      label: "Actions",
-      render: (_, row) => (
-        <div className="flex items-center gap-1.5">
-          <button
-            title="View"
-            onClick={() => navigate(`/customer-details/${row.id}`)}
-            className={`rounded-md p-1.5 transition-colors ${actionColors.brand}`}
-          >
-            <FiEye size={14} />
-          </button>
-          {row.status === "Active" && (
-            <button
-              title="Block"
-              onClick={() => toast.error(`${row.name} has been blocked`)}
-              className={`rounded-md p-1.5 transition-colors ${actionColors.red}`}
-            >
-              <FiUserX size={14} />
-            </button>
-          )}
-          {(row.status === "Suspended" || row.status === "Blocked") && (
-            <button
-              title="Unblock"
-              onClick={() => toast.success(`${row.name} has been unblocked`)}
-              className={`rounded-md p-1.5 transition-colors ${actionColors.green}`}
-            >
-              <FiUserCheck size={14} />
-            </button>
-          )}
-        </div>
-      ),
+      label: "View details",
+      icon: FiEye,
+      color: "brand",
+      onClick: (row) => navigate(`/customer-details/${row.id}`),
+    },
+    {
+      label: "Block",
+      icon: FiUserX,
+      color: "red",
+      show: (row) => row.status === "Active",
+      onClick: (row) => toast.error(`${row.name} has been blocked`),
+    },
+    {
+      label: "Unblock",
+      icon: FiUserCheck,
+      color: "green",
+      show: (row) => row.status === "Suspended" || row.status === "Blocked",
+      onClick: (row) => toast.success(`${row.name} has been unblocked`),
     },
   ]
 
@@ -82,6 +72,8 @@ export default function Customers() {
       filterKey="status"
       columns={columns}
       data={customers}
+      actions={actions}
+      actionsVariant="menu"
     />
   )
 }
