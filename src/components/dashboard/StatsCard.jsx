@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { valueColors } from "@/lib/tableUtils"
 
 function StatsCard({ title, value, icon: Icon, trend, trendValue, description, valueColor = "default", warning = false }) {
+  const StatIcon = Icon ?? AlertTriangle
   const isUp = trend === "up"
 
   return (
@@ -12,7 +13,7 @@ function StatsCard({ title, value, icon: Icon, trend, trendValue, description, v
           {title}
         </CardTitle>
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar/10 text-sidebar">
-          <Icon className="h-4 w-4" />
+          <StatIcon className="h-4 w-4" />
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-1">

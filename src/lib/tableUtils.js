@@ -71,15 +71,15 @@ export const salonFilters = [
 // Column definitions with JSX renders live in tableColumns.jsx
 
 export const customerStatusConfig = {
-  Active:    { icon: CheckCircle2, cls: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
-  Suspended: { icon: PauseCircle,  cls: "bg-amber-50 text-amber-700 ring-amber-200" },
-  Blocked:   { icon: Ban,          cls: "bg-red-50 text-red-600 ring-red-200" },
+  active:    { label: "Active",    icon: CheckCircle2, cls: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
+  suspended: { label: "Suspended", icon: PauseCircle,  cls: "bg-amber-50 text-amber-700 ring-amber-200" },
+  blocked:   { label: "Blocked",   icon: Ban,          cls: "bg-red-50 text-red-600 ring-red-200" },
 }
 
 export const customerFilters = [
   { label: "All",       value: "all" },
-  { label: "Suspended", value: "Suspended" },
-  { label: "Blocked",   value: "Blocked" },
+  { label: "Suspended", value: "suspended" },
+  { label: "Blocked",   value: "blocked" },
 ]
 
 // ─── Bookings ─────────────────────────────────────────────────────────────────
@@ -87,25 +87,28 @@ export const customerFilters = [
 // Column definitions with JSX renders live in tableColumns.jsx
 
 export const bookingStatusConfig = {
-  Confirmed: { icon: CheckCircle2, cls: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
-  Completed: { icon: CheckCircle2, cls: "bg-[#145E94]/10 text-[#145E94] ring-[#145E94]/20" },
-  Cancelled: { icon: XCircle,      cls: "bg-red-50 text-red-600 ring-red-200" },
-  "No-Show": { icon: PauseCircle,  cls: "bg-amber-50 text-amber-700 ring-amber-200" },
+  pending: { label: "Pending", icon: PauseCircle, cls: "bg-amber-50 text-amber-700 ring-amber-200" },
+  confirmed: { label: "Confirmed", icon: CheckCircle2, cls: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
+  completed: { label: "Completed", icon: CheckCircle2, cls: "bg-[#145E94]/10 text-[#145E94] ring-[#145E94]/20" },
+  cancelled: { label: "Cancelled", icon: XCircle, cls: "bg-red-50 text-red-600 ring-red-200" },
+  noShow: { label: "No-Show", icon: PauseCircle, cls: "bg-amber-50 text-amber-700 ring-amber-200" },
 }
 
 export const bookingPriceColor = {
-  Confirmed: "font-semibold text-emerald-600",
-  Completed: "font-semibold text-[#145E94]",
-  Cancelled: "text-muted-foreground",
-  "No-Show": "text-muted-foreground",
+  pending: "text-muted-foreground",
+  confirmed: "font-semibold text-emerald-600",
+  completed: "font-semibold text-[#145E94]",
+  cancelled: "text-muted-foreground",
+  noShow: "text-muted-foreground",
 }
 
 export const bookingFilters = [
   { label: "All",       value: "all" },
-  { label: "Confirmed", value: "Confirmed" },
-  { label: "Completed", value: "Completed" },
-  { label: "Cancelled", value: "Cancelled" },
-  { label: "No-Show",   value: "No-Show" },
+  { label: "Pending",   value: "pending" },
+  { label: "Confirmed", value: "confirmed" },
+  { label: "Completed", value: "completed" },
+  { label: "Cancelled", value: "cancelled" },
+  { label: "No-Show",   value: "noShow" },
 ]
 
 // ─── Notifications ────────────────────────────────────────────────────────────

@@ -1,41 +1,104 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { FiEye, FiFlag } from "react-icons/fi"
 import { toast } from "sonner"
 import { useNavigate } from "react-router-dom"
-import { DateRangePicker } from "@/components/ui/date-range-picker"
 import DynamicTable from "@/components/DynamicTable"
-import StatsCard from "@/components/dashboard/StatsCard"
-import bookingsData from "@/data/bookings.json"
-import { bookingFilters, dashboardIconMap } from "@/lib/tableUtils"
+import { bookingFilters } from "@/lib/tableUtils"
 import { bookingColumns } from "@/lib/tableColumns"
+import { parseApiError } from "@/lib/apiError"
+import { useGetBookingsQuery } from "@/store/booking/bookingApiSlice"
 
-const { stats, statCards, bookings } = bookingsData
+const PAGE_SIZE = 10
 
-// Resolves the dynamic trendValue for each stat card from the stats object.
-function resolveTrendValue(card, stats) {
-  if (card.trendType === "pct")
-    return `${Math.round((stats[card.valueKey] / stats.total) * 100)}%`
-  if (card.trendKey)
-    return `↑ ${stats[card.trendKey]}`
-  return card.trendValue ?? ""
+const unwrapBookings = (response) =>
+  response?.results ??
+  response?.data?.results ??
+  response?.data?.bookings ??
+  response?.bookings ??
+  []
+
+const getPaginationValue = (response, key) =>
+  response?.[key] ??
+  response?.data?.[key] ??
+  response?.pagination?.[key] ??
+  response?.data?.pagination?.[key]
+
+const normalizeStatus = (status) => {
+  const value = String(status ?? "pending").trim()
+  const normalized = value.toLowerCase()
+  if (normalized === "no-show" || normalized === "noshow" || normalized === "no_show") return "noShow"
+  return value.charAt(0).toLowerCase() + value.slice(1)
 }
 
-// ─── Bookings page ────────────────────────────────────────────────────────────
+const formatDateTime = (booking) => {
+  const raw =
+    booking.dateTime ??
+    booking.appointmentAt ??
+    booking.startTime ??
+    booking.date ??
+    booking.createdAt
+
+  if (!raw) return "-"
+  const date = new Date(raw)
+  if (Number.isNaN(date.getTime())) return String(raw)
+
+  return new Intl.DateTimeFormat("en-PK", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date)
+}
+
+const formatPrice = (booking) => {
+  const amount = booking.price ?? booking.totalPrice ?? booking.amount ?? booking.totalAmount
+  if (amount === undefined || amount === null || amount === "") return "-"
+  if (typeof amount === "number") return `Rs. ${amount.toLocaleString("en-PK")}`
+  return String(amount)
+}
+
+function toRow(booking) {
+  const customer = booking.customer ?? booking.user ?? {}
+  const salon = booking.salon ?? {}
+  const service = booking.service ?? booking.services?.[0] ?? {}
+
+  return {
+    id: booking._id ?? booking.id,
+    customer: {
+      name: customer.name ?? booking.customerName ?? "-",
+      phone: customer.phone ?? customer.phoneNumber ?? booking.customerPhone ?? "",
+    },
+    salon: salon.name ?? booking.salonName ?? "-",
+    service: service.name ?? booking.serviceName ?? "-",
+    dateTime: formatDateTime(booking),
+    price: formatPrice(booking),
+    status: normalizeStatus(booking.status),
+  }
+}
 
 export default function Bookings() {
   const navigate = useNavigate()
-  const [dateRange, setDateRange] = useState(undefined)
-  const filteredData = useMemo(() => {
-    if (!dateRange?.from) return bookings
-    const from = dateRange.from
-    const to = dateRange.to ?? dateRange.from
-    return bookings.filter((b) => {
-      const d = new Date(b.date)
-      return d >= from && d <= to
-    })
-  }, [dateRange])
+  const [status, setStatus] = useState("all")
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState("")
+  const [debouncedSearch, setDebouncedSearch] = useState("")
 
-  // Context-sensitive actions: Flag only for No-Show bookings
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setDebouncedSearch(search.trim())
+      setPage(1)
+    }, 350)
+
+    return () => window.clearTimeout(timeout)
+  }, [search])
+
+  const { data, isFetching, error, refetch } = useGetBookingsQuery({
+    page,
+    limit: PAGE_SIZE,
+    search: debouncedSearch || undefined,
+    status: status === "all" ? undefined : status,
+  })
+
+  const rows = useMemo(() => unwrapBookings(data).map(toRow), [data])
+
   const actions = [
     {
       label: "View details",
@@ -47,47 +110,38 @@ export default function Bookings() {
       label: "Flag no-show",
       icon: FiFlag,
       color: "red",
-      show: (row) => row.status === "No-Show",
+      show: (row) => row.status === "noShow",
       onClick: (row) => toast.warning(`Booking #${row.id} flagged as no-show`),
     },
   ]
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* ── Stat cards ── */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-        {statCards.map((card) => (
-          <StatsCard
-            key={card.title}
-            title={card.title}
-            value={stats[card.valueKey]}
-            icon={dashboardIconMap[card.icon]}
-            trend={card.trend}
-            trendValue={resolveTrendValue(card, stats)}
-            description={card.description}
-            valueColor={card.valueColor}
-            warning={card.warning ?? false}
-          />
-        ))}
-      </div>
-
-      {/* ── Bookings table ── */}
-      <DynamicTable
-        title="All Bookings"
-        searchPlaceholder="Search by customer or salon..."
-        searchKey={["salon", "service"]}
-        exportLabel="Export CSV"
-        onExport={() => console.log("export")}
-        filters={bookingFilters}
-        filterKey="status"
-        columns={bookingColumns}
-        data={filteredData}
-        actions={actions}
-        actionsVariant="menu"
-        headerExtra={
-        <DateRangePicker range={dateRange} onChange={setDateRange} />
-        }
-      />
-    </div>
+    <DynamicTable
+      title="All Bookings"
+      searchPlaceholder="Search bookings..."
+      searchKey={["salon", "service"]}
+      searchValue={search}
+      onSearchChange={setSearch}
+      exportLabel="Export CSV"
+      onExport={() => console.log("export")}
+      filters={bookingFilters}
+      activeFilter={status}
+      onFilterChange={(value) => {
+        setStatus(value)
+        setPage(1)
+      }}
+      showCounts={false}
+      columns={bookingColumns}
+      data={rows}
+      actions={actions}
+      actionsVariant="menu"
+      loading={isFetching}
+      error={error ? parseApiError(error).message : null}
+      onRetry={refetch}
+      page={page}
+      totalPages={getPaginationValue(data, "totalPages")}
+      totalResults={getPaginationValue(data, "totalResults")}
+      onPageChange={setPage}
+    />
   )
 }

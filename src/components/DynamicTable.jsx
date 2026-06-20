@@ -35,6 +35,8 @@ export default function DynamicTable({
   actionsVariant = "inline",
   onRowClick,
   headerExtra,
+  searchValue,
+  onSearchChange,
   // ── Async / server-driven props (all optional) ──
   loading = false,
   error = null,
@@ -55,11 +57,18 @@ export default function DynamicTable({
   const [internalFilter, setInternalFilter] = useState(filters[0]?.value ?? "all")
 
   const isServerFiltered = typeof onFilterChange === "function"
+  const isServerSearched = typeof onSearchChange === "function"
   const activeFilter = isServerFiltered ? controlledFilter : internalFilter
+  const activeSearch = isServerSearched ? searchValue ?? "" : search
 
   const handleTabClick = (value) => {
     if (isServerFiltered) onFilterChange(value)
     else setInternalFilter(value)
+  }
+
+  const handleSearchChange = (value) => {
+    if (isServerSearched) onSearchChange(value)
+    else setSearch(value)
   }
 
   const filtered = useMemo(() => {
@@ -74,7 +83,7 @@ export default function DynamicTable({
       )
     }
 
-    if (search.trim()) {
+    if (!isServerSearched && search.trim()) {
       const q = search.toLowerCase()
       const keys = searchKey
         ? Array.isArray(searchKey)
@@ -91,7 +100,7 @@ export default function DynamicTable({
     }
 
     return rows
-  }, [data, activeFilter, search, filterKey, searchKey, columns, isServerFiltered])
+  }, [data, activeFilter, search, filterKey, searchKey, columns, isServerFiltered, isServerSearched])
 
   const totalForTab = (value) => {
     if (!filterKey || value === "all") return data.length
@@ -116,8 +125,8 @@ export default function DynamicTable({
           <div className="relative">
             <Search className="absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={activeSearch}
+              onChange={(e) => handleSearchChange(e.target.value)}
               placeholder={searchPlaceholder}
               className="h-8 w-48 pl-8 text-sm"
             />

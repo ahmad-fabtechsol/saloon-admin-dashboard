@@ -13,7 +13,8 @@ import {
   useGetSalonByIdQuery,
   useUpdateSalonStatusMutation,
 } from "@/store/salon/salonApiSlice"
-import { useErrorModal } from "@/context/ErrorModalProvider"
+import { useApiError } from "@/hooks/useApiError"
+import ApiErrorModal from "@/components/ApiErrorModal"
 import { parseApiError } from "@/lib/apiError"
 
 const DAY_ORDER = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
@@ -74,7 +75,7 @@ function BackButton({ onClick }) {
 export default function SalonDetail() {
   const navigate = useNavigate()
   const { id } = useParams()
-  const { showApiError } = useErrorModal()
+  const { error: apiError, showError, clearError } = useApiError()
 
   const { data, isLoading, error, refetch } = useGetSalonByIdQuery(id)
   const [updateSalonStatus, { isLoading: updating }] = useUpdateSalonStatusMutation()
@@ -94,7 +95,7 @@ export default function SalonDetail() {
       toast.success(`${salon?.name ?? "Salon"} has been ${PAST[pending.action]}`)
       setPending(null) // invalidatesTags refetches this salon automatically
     } catch (err) {
-      showApiError(err)
+      showError(err)
     }
   }
 
@@ -353,6 +354,8 @@ export default function SalonDetail() {
         onConfirm={handleConfirm}
         onCancel={() => setPending(null)}
       />
+
+      <ApiErrorModal error={apiError} onClose={clearError} />
     </div>
   )
 }

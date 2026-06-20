@@ -2,11 +2,12 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
-import { ArrowLeft, MailCheck, Scissors } from "lucide-react"
+import { ArrowLeft, MailCheck } from "lucide-react"
 import { toast } from "sonner"
-import { useErrorModal } from "@/context/ErrorModalProvider"
+import { useApiError } from "@/hooks/useApiError"
 import { useForgotPasswordMutation } from "@/store/auth/authApiSlice"
-import { applyApiError } from "@/lib/apiError"
+import { applyFieldErrors } from "@/lib/apiError"
+import ApiErrorModal from "@/components/ApiErrorModal"
 import { forgotPasswordSchema } from "@/lib/validations/auth"
 import { Button } from "@/components/ui/button"
 import {
@@ -19,9 +20,10 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import BrandLogo from "@/components/BrandLogo"
 
 export default function ForgotPassword() {
-  const { showError } = useErrorModal()
+  const { error: apiError, showError, clearError } = useApiError()
   const [forgotPassword, { isLoading }] = useForgotPasswordMutation()
   const [sentTo, setSentTo] = useState(null)
 
@@ -39,19 +41,19 @@ export default function ForgotPassword() {
       await forgotPassword({ email }).unwrap()
       setSentTo(email)
       toast.success("Password reset link sent to your email")
-    } catch (error) {
-      applyApiError(error, { setError, showError, fields: ["email"] })
+    } catch (err) {
+      const mapped = applyFieldErrors(err, setError, ["email"])
+      if (!mapped) showError(err)
     }
   }
 
   return (
+    <>
     <div className="flex min-h-svh items-center justify-center bg-muted/40 p-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sidebar text-sidebar-foreground">
-            <Scissors className="h-5 w-5" />
-          </div>
-          <h1 className="text-xl font-semibold">Salon Admin</h1>
+          <BrandLogo imageClassName="h-14 w-14" />
+          <h1 className="text-xl font-semibold">SalonPanda</h1>
           <p className="text-sm text-muted-foreground">Management Panel</p>
         </div>
 
@@ -126,5 +128,8 @@ export default function ForgotPassword() {
         </Card>
       </div>
     </div>
+
+      <ApiErrorModal error={apiError} onClose={clearError} />
+    </>
   )
 }

@@ -2,11 +2,12 @@ import { useEffect } from "react"
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
-import { ArrowLeft, Scissors } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
-import { useErrorModal } from "@/context/ErrorModalProvider"
+import { useApiError } from "@/hooks/useApiError"
 import { useResetPasswordMutation } from "@/store/auth/authApiSlice"
-import { applyApiError } from "@/lib/apiError"
+import { applyFieldErrors } from "@/lib/apiError"
+import ApiErrorModal from "@/components/ApiErrorModal"
 import { resetPasswordSchema } from "@/lib/validations/auth"
 import { Button } from "@/components/ui/button"
 import {
@@ -19,9 +20,10 @@ import {
 } from "@/components/ui/card"
 import { PasswordInput } from "@/components/ui/password-input"
 import { Label } from "@/components/ui/label"
+import BrandLogo from "@/components/BrandLogo"
 
 export default function ResetPassword() {
-  const { showError } = useErrorModal()
+  const { error: apiError, title: apiErrorTitle, showError, clearError } = useApiError()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const token = searchParams.get("token")
@@ -51,19 +53,19 @@ export default function ResetPassword() {
       await resetPassword({ token, password }).unwrap()
       toast.success("Your password has been reset. Please sign in.")
       navigate("/login")
-    } catch (error) {
-      applyApiError(error, { setError, showError, fields: ["password"] })
+    } catch (err) {
+      const mapped = applyFieldErrors(err, setError, ["password"])
+      if (!mapped) showError(err)
     }
   }
 
   return (
+    <>
     <div className="flex min-h-svh items-center justify-center bg-muted/40 p-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sidebar text-sidebar-foreground">
-            <Scissors className="h-5 w-5" />
-          </div>
-          <h1 className="text-xl font-semibold">Salon Admin</h1>
+          <BrandLogo imageClassName="h-14 w-14" />
+          <h1 className="text-xl font-semibold">SalonPanda</h1>
           <p className="text-sm text-muted-foreground">Management Panel</p>
         </div>
 
@@ -124,5 +126,12 @@ export default function ResetPassword() {
         </Card>
       </div>
     </div>
+
+      <ApiErrorModal
+        error={apiError}
+        title={apiErrorTitle}
+        onClose={clearError}
+      />
+    </>
   )
 }

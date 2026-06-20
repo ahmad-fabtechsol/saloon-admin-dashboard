@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 
 import { useAuth } from "@/hooks/useAuth"
+import whiteLogo from "@/assets/dark-logo.png"
 import {
   Sidebar,
   SidebarContent,
@@ -48,9 +49,13 @@ export function AppSidebar({ ...props }) {
     <Sidebar {...props}>
       <SidebarHeader className="px-4 py-4">
         <div className="flex items-center gap-3">
-          <Scissors className="h-6 w-6 shrink-0" />
+          <img
+            src={whiteLogo}
+            alt="SalonPanda"
+            className="h-9 w-9 object-contain"
+          />
           <div className="flex flex-col leading-none">
-            <span className="font-semibold">Salon Admin</span>
+            <span className="font-semibold">SalonPanda</span>
             <span className="text-xs text-sidebar-foreground/60">Management Panel</span>
           </div>
         </div>

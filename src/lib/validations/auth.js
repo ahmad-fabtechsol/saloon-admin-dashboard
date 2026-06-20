@@ -26,20 +26,6 @@ export const profileSchema = yup.object({
     .required("Phone is required"),
 })
 
-export const changePasswordSchema = yup.object({
-  currentPassword: yup
-    .string()
-    .required("Current password is required"),
-  newPassword: yup
-    .string()
-    .min(6, "Password must be at least 6 characters")
-    .required("New password is required"),
-  confirmPassword: yup
-    .string()
-    .oneOf([yup.ref("newPassword")], "Passwords do not match")
-    .required("Please confirm your new password"),
-})
-
 export const forgotPasswordSchema = yup.object({
   email: yup
     .string()

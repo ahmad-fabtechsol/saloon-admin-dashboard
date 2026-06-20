@@ -9,10 +9,10 @@
  *   { message: "...", errors: [{ field: "email", message: "..." }] }
  *   { message: "...", errors: { email: "...", password: ["..."] } }
  *
- * `parseApiError`  -> turn an error into normalised data.
- * `applyApiError`  -> route that data to the right place: field errors go under
- *                     their inputs (via react-hook-form `setError`), and any
- *                     remaining general message is shown in the global modal.
+ * `parseApiError`    -> turn an error into normalised data.
+ * `applyFieldErrors` -> push field errors onto a react-hook-form (returns
+ *                       whether any were applied). General errors are rendered
+ *                       by the <ApiErrorModal /> component via the useApiError hook.
  */
 
 const NETWORK_MESSAGES = {
@@ -77,31 +77,25 @@ export function parseApiError(error) {
 }
 
 /**
- * Apply a parsed error to a form + the global error modal.
+ * Map an API error's field errors onto a react-hook-form. Returns `true` when
+ * at least one field error was applied — so the caller can decide whether to
+ * also surface the modal for a general (non-field) error.
  *
- * @param {unknown} error                   RTK Query error object
- * @param {object}  handlers
- * @param {Function} [handlers.setError]    react-hook-form setError
- * @param {Function} [handlers.showError]   global modal opener (message, title)
- * @param {string[]} [handlers.fields]      whitelist of valid form field names
- * @returns {{ message: string, fieldErrors: Record<string,string> }}
+ * @param {unknown}  error         RTK Query error object
+ * @param {Function} setFormError  react-hook-form `setError`
+ * @param {string[]} [fields]      whitelist of valid form field names
+ * @returns {boolean} whether any inline field error was applied
  */
-export function applyApiError(error, { setError, showError, fields } = {}) {
-  const { message, fieldErrors } = parseApiError(error);
+export function applyFieldErrors(error, setFormError, fields) {
+  const { fieldErrors } = parseApiError(error);
 
-  let mappedAnyField = false;
+  let mapped = false;
   Object.entries(fieldErrors).forEach(([key, msg]) => {
-    if (!setError) return;
+    if (!setFormError) return;
     if (fields && !fields.includes(key)) return;
-    setError(key, { type: 'server', message: msg });
-    mappedAnyField = true;
+    setFormError(key, { type: 'server', message: msg });
+    mapped = true;
   });
 
-  // Only surface the general modal when we couldn't attribute the error to a
-  // specific field — otherwise the inline messages already explain it.
-  if (!mappedAnyField && message) {
-    showError?.(message);
-  }
-
-  return { message, fieldErrors };
+  return mapped;
 }

@@ -1,12 +1,12 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
-import { Scissors } from "lucide-react"
 import { toast } from "sonner"
 import { useAuth } from "@/hooks/useAuth"
-import { useErrorModal } from "@/context/ErrorModalProvider"
+import { useApiError } from "@/hooks/useApiError"
 import { useLoginMutation } from "@/store/auth/authApiSlice"
-import { applyApiError } from "@/lib/apiError"
+import { applyFieldErrors } from "@/lib/apiError"
+import ApiErrorModal from "@/components/ApiErrorModal"
 import { loginSchema } from "@/lib/validations/auth"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,10 +20,11 @@ import {
 import { Input } from "@/components/ui/input"
 import { PasswordInput } from "@/components/ui/password-input"
 import { Label } from "@/components/ui/label"
+import BrandLogo from "@/components/BrandLogo"
 
 export default function Login() {
   const { setSession } = useAuth()
-  const { showError } = useErrorModal()
+  const { error: apiError, showError, clearError } = useApiError()
   const navigate = useNavigate()
   const [login, { isLoading }] = useLoginMutation()
 
@@ -46,22 +47,19 @@ export default function Login() {
       })
       toast.success(`Welcome back${data.admin?.name ? `, ${data.admin.name}` : ""}!`)
       navigate("/dashboard")
-    } catch (error) {
-      applyApiError(error, {
-        setError,
-        showError,
-        fields: ["email", "password"],
-      })
+    } catch (err) {
+      // Field errors render under their inputs; anything else opens the modal.
+      const mapped = applyFieldErrors(err, setError, ["email", "password"])
+      if (!mapped) showError(err)
     }
   }
 
   return (
+    <>
     <div className="flex min-h-svh items-center justify-center bg-muted/40 p-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sidebar text-sidebar-foreground">
-            <Scissors className="h-5 w-5" />
-          </div>
+          <BrandLogo imageClassName="h-14 w-14" />
           <h1 className="text-xl font-semibold">SalonPanda</h1>
           <p className="text-sm text-muted-foreground">Management Panel</p>
         </div>
@@ -117,5 +115,8 @@ export default function Login() {
         </Card>
       </div>
     </div>
+
+      <ApiErrorModal error={apiError} onClose={clearError} />
+    </>
   )
 }

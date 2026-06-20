@@ -1,4 +1,5 @@
 import { baseApi } from '../apiSlice';
+import { dashboardApi } from '../dashboard/dashboardApiSlice';
 
 export const salonApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -40,10 +41,20 @@ export const salonApi = baseApi.injectEndpoints({
         method: 'PATCH',
         body: rejectionReason ? { status, rejectionReason } : { status },
       }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        await queryFulfilled;
+        dispatch(
+          dashboardApi.endpoints.getAdminDashboard.initiate(
+            { activityLimit: 10, activityPage: 1, pendingLimit: 5 },
+            { forceRefetch: true, subscribe: false }
+          )
+        );
+      },
       // Refetch the listing (and the affected row) once the status changes.
       invalidatesTags: (result, error, { salonId }) => [
         { type: 'Salon', id: salonId },
         { type: 'Salon', id: 'LIST' },
+        { type: 'Dashboard', id: 'ADMIN' },
       ],
     }),
   }),

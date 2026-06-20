@@ -2,12 +2,11 @@ import { useState } from "react"
 import { FiCheckCircle, FiTrash2 } from "react-icons/fi"
 import { toast } from "sonner"
 import DynamicTable from "@/components/DynamicTable"
-import notifications from "@/data/notifications.json"
 import { notificationFilters } from "@/lib/tableUtils"
 import { notificationColumns } from "@/lib/tableColumns"
 
 export default function Notifications() {
-  const [data, setData] = useState(notifications)
+  const [data, setData] = useState([])
 
   const unreadCount = data.filter((n) => n.status === "Unread").length
 

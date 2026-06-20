@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { FiCheckCircle, FiEye, FiSlash, FiXCircle } from "react-icons/fi"
 import { toast } from "sonner"
 import DynamicTable from "@/components/DynamicTable"
@@ -10,7 +10,8 @@ import {
   useGetSalonsQuery,
   useUpdateSalonStatusMutation,
 } from "@/store/salon/salonApiSlice"
-import { useErrorModal } from "@/context/ErrorModalProvider"
+import { useApiError } from "@/hooks/useApiError"
+import ApiErrorModal from "@/components/ApiErrorModal"
 import { parseApiError } from "@/lib/apiError"
 
 const PAGE_SIZE = 10
@@ -41,10 +42,22 @@ function toRow(s) {
 
 export default function Salons() {
   const navigate = useNavigate()
-  const { showApiError } = useErrorModal()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const { error: apiError, showError, clearError } = useApiError()
 
-  const [status, setStatus] = useState("all")
+  const initialStatus = salonFilters.some((filter) => filter.value === searchParams.get("status"))
+    ? searchParams.get("status")
+    : "all"
+  const [status, setStatus] = useState(initialStatus)
   const [page, setPage] = useState(1)
+
+  useEffect(() => {
+    const nextStatus = salonFilters.some((filter) => filter.value === searchParams.get("status"))
+      ? searchParams.get("status")
+      : "all"
+    setStatus(nextStatus)
+    setPage(1)
+  }, [searchParams])
 
   // Pending status change awaiting confirmation: { action, row } | null
   const [pending, setPending] = useState(null)
@@ -71,7 +84,7 @@ export default function Salons() {
       toast.success(`${pending.row.name} has been ${PAST[pending.action]}`)
       setPending(null) // invalidatesTags refetches the listing automatically
     } catch (err) {
-      showApiError(err)
+      showError(err)
     }
   }
 
@@ -118,6 +131,8 @@ export default function Salons() {
         onFilterChange={(value) => {
           setStatus(value)
           setPage(1)
+          if (value === "all") setSearchParams({})
+          else setSearchParams({ status: value })
         }}
         columns={salonColumns}
         data={rows}
@@ -141,6 +156,8 @@ export default function Salons() {
         onConfirm={handleConfirm}
         onCancel={() => setPending(null)}
       />
+
+      <ApiErrorModal error={apiError} onClose={clearError} />
     </>
   )
 }

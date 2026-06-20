@@ -1,5 +1,5 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
-import { Bell, LogOut, Settings, User } from "lucide-react"
+import { Bell, LogOut, User } from "lucide-react"
 import { toast } from "sonner"
 import { useAuth } from "@/hooks/useAuth"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
@@ -26,6 +26,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import ThemeToggle from "@/components/ThemeToggle"
 
 const routeLabels = {
   "/dashboard": ["Home", "Dashboard"],
@@ -104,6 +105,9 @@ export default function AppHeader() {
             </Breadcrumb>
 
             <div className="ml-auto flex items-center gap-1">
+              {/* Theme toggle */}
+              <ThemeToggle />
+
               {/* Notifications */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -179,10 +183,6 @@ export default function AppHeader() {
                     </span>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate("/settings")}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/settings")}>
                     <User className="mr-2 h-4 w-4" />
                     Profile

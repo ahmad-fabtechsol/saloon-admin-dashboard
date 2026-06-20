@@ -1,9 +1,9 @@
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
-import { Lock, User } from "lucide-react"
+import { User } from "lucide-react"
 import { toast } from "sonner"
 import { useAuth } from "@/hooks/useAuth"
-import { profileSchema, changePasswordSchema } from "@/lib/validations/auth"
+import { profileSchema } from "@/lib/validations/auth"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -42,20 +42,6 @@ export default function Settings() {
   function onProfileSubmit(data) {
     patchUser(data)
     toast.success("Profile updated successfully")
-  }
-
-  // ── Password form ─────────────────────────────────────────────────────────
-  const {
-    register: regPassword,
-    handleSubmit: handlePassword,
-    reset: resetPassword,
-    formState: { errors: passwordErrors, isSubmitting: passwordSubmitting },
-  } = useForm({ resolver: yupResolver(changePasswordSchema) })
-
-  function onPasswordSubmit(data) {
-    console.log("Password changed", data)
-    resetPassword()
-    toast.success("Password changed successfully")
   }
 
   return (
@@ -109,48 +95,6 @@ export default function Settings() {
               className="w-fit bg-[#145E94] text-white hover:bg-[#145E94]/90"
             >
               {profileSubmitting ? "Saving…" : "Update Profile"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* ── Change Password ── */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-            <Lock className="h-4 w-4" />
-            Change Password
-          </CardTitle>
-        </CardHeader>
-
-        <Separator />
-
-        <CardContent className="pt-5">
-          <form onSubmit={handlePassword(onPasswordSubmit)} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="currentPassword">Current Password</Label>
-              <Input id="currentPassword" type="password" {...regPassword("currentPassword")} />
-              <FieldError message={passwordErrors.currentPassword?.message} />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="newPassword">New Password</Label>
-              <Input id="newPassword" type="password" {...regPassword("newPassword")} />
-              <FieldError message={passwordErrors.newPassword?.message} />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
-              <Input id="confirmPassword" type="password" {...regPassword("confirmPassword")} />
-              <FieldError message={passwordErrors.confirmPassword?.message} />
-            </div>
-
-            <Button
-              type="submit"
-              disabled={passwordSubmitting}
-              className="w-fit bg-[#145E94] text-white hover:bg-[#145E94]/90"
-            >
-              {passwordSubmitting ? "Saving…" : "Change Password"}
             </Button>
           </form>
         </CardContent>

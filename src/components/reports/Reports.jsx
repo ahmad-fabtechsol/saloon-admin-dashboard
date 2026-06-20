@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { format } from "date-fns"
-import reportsData from "@/data/reports.json"
 import { DateRangePicker } from "@/components/ui/date-range-picker"
 import RevenueOverview from "@/components/reports/RevenueOverview"
 import BookingTrends from "@/components/reports/BookingTrends"
@@ -8,7 +7,34 @@ import TopSalons from "@/components/reports/TopSalons"
 import NoShowReport from "@/components/reports/NoShowReport"
 import CustomerGrowth from "@/components/reports/CustomerGrowth"
 
-const { revenue, bookings, topSalons, noShow, customerGrowth } = reportsData
+const revenue = {
+  thisMonth: "Rs. 0",
+  today: "Rs. 0",
+  dailyLast7: [],
+}
+
+const bookings = {
+  totalThisMonth: 0,
+  completionRate: "0%",
+  statusLast7: [],
+}
+
+const topSalons = []
+
+const noShow = {
+  thisMonth: 0,
+  rate: "0%",
+  suspended: 0,
+  topOffenders: [],
+}
+
+const customerGrowth = {
+  totalUsers: 0,
+  newThisMonth: 0,
+  newSalonsThisMonth: 0,
+  approvalRate: "0%",
+  signupsLast7: [],
+}
 
 export default function Reports() {
   const [dateRange, setDateRange] = useState(undefined)
