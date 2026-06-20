@@ -1,12 +1,32 @@
 import { useEffect, useMemo, useState } from "react"
-import { FiEye, FiFlag } from "react-icons/fi"
+import { format } from "date-fns"
+import { FiCheckCircle, FiEye, FiSlash, FiXCircle } from "react-icons/fi"
 import { toast } from "sonner"
 import { useNavigate } from "react-router-dom"
 import DynamicTable from "@/components/DynamicTable"
-import { bookingFilters } from "@/lib/tableUtils"
+import ConfirmDialog from "@/components/ConfirmDialog"
+import { DateRangePicker } from "@/components/ui/date-range-picker"
+import { bookingFilters, bookingStatusActions, bookingStatusTransitions } from "@/lib/tableUtils"
 import { bookingColumns } from "@/lib/tableColumns"
 import { parseApiError } from "@/lib/apiError"
-import { useGetBookingsQuery } from "@/store/booking/bookingApiSlice"
+import {
+  useGetBookingsQuery,
+  useUpdateBookingStatusMutation,
+} from "@/store/booking/bookingApiSlice"
+
+const ACTION_ICONS = {
+  confirmed: FiCheckCircle,
+  completed: FiCheckCircle,
+  noShow: FiSlash,
+  cancelled: FiXCircle,
+}
+
+const CONFIRM_BTN_CLS = {
+  green: "bg-emerald-600 text-white hover:bg-emerald-600/90",
+  blue: "bg-[#145E94] text-white hover:bg-[#145E94]/90",
+  amber: "bg-amber-600 text-white hover:bg-amber-600/90",
+  red: "bg-red-600 text-white hover:bg-red-600/90",
+}
 
 const PAGE_SIZE = 10
 
@@ -67,7 +87,7 @@ function toRow(booking) {
       phone: customer.phone ?? customer.phoneNumber ?? booking.customerPhone ?? "",
     },
     salon: salon.name ?? booking.salonName ?? "-",
-    service: service.name ?? booking.serviceName ?? "-",
+    service: service.name ?? booking.serviceType ?? "-",
     dateTime: formatDateTime(booking),
     price: formatPrice(booking),
     status: normalizeStatus(booking.status),
@@ -80,6 +100,8 @@ export default function Bookings() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
+  // { from: Date, to?: Date } | undefined — drives the startDate/endDate query params.
+  const [dateRange, setDateRange] = useState(undefined)
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -90,14 +112,42 @@ export default function Bookings() {
     return () => window.clearTimeout(timeout)
   }, [search])
 
+  // Only send a range once a start date is picked; end falls back to start for a single day.
+  const startDate = dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined
+  const endDate = dateRange?.from
+    ? format(dateRange.to ?? dateRange.from, "yyyy-MM-dd")
+    : undefined
+
   const { data, isFetching, error, refetch } = useGetBookingsQuery({
     page,
     limit: PAGE_SIZE,
     search: debouncedSearch || undefined,
     status: status === "all" ? undefined : status,
+    startDate,
+    endDate,
   })
 
+  const handleDateRangeChange = (range) => {
+    setDateRange(range)
+    setPage(1)
+  }
+
   const rows = useMemo(() => unwrapBookings(data).map(toRow), [data])
+
+  const [updateBookingStatus, { isLoading: updatingStatus }] = useUpdateBookingStatusMutation()
+  // Pending status change awaiting confirmation: { row, action } | null
+  const [pending, setPending] = useState(null)
+
+  const handleConfirm = async () => {
+    if (!pending) return
+    try {
+      await updateBookingStatus({ bookingId: pending.row.id, status: pending.action.status }).unwrap()
+      toast.success(`Booking ${pending.action.past}`)
+      setPending(null)
+    } catch (err) {
+      toast.error(parseApiError(err).message)
+    }
+  }
 
   const actions = [
     {
@@ -106,22 +156,26 @@ export default function Bookings() {
       color: "brand",
       onClick: (row) => navigate(`/booking-details/${row.id}`),
     },
-    {
-      label: "Flag no-show",
-      icon: FiFlag,
-      color: "red",
-      show: (row) => row.status === "noShow",
-      onClick: (row) => toast.warning(`Booking #${row.id} flagged as no-show`),
-    },
+    ...bookingStatusActions.map((action) => ({
+      label: action.label,
+      icon: ACTION_ICONS[action.status],
+      color: action.color,
+      show: (row) => (bookingStatusTransitions[row.status] ?? []).includes(action.status),
+      onClick: (row) => setPending({ row, action }),
+    })),
   ]
 
   return (
-    <DynamicTable
+    <>
+      <DynamicTable
       title="All Bookings"
       searchPlaceholder="Search bookings..."
       searchKey={["salon", "service"]}
       searchValue={search}
       onSearchChange={setSearch}
+      headerExtra={
+        <DateRangePicker range={dateRange} onChange={handleDateRangeChange} align="end" />
+      }
       exportLabel="Export CSV"
       onExport={() => console.log("export")}
       filters={bookingFilters}
@@ -133,6 +187,7 @@ export default function Bookings() {
       showCounts={false}
       columns={bookingColumns}
       data={rows}
+      onRowClick={(row) => navigate(`/booking-details/${row.id}`)}
       actions={actions}
       actionsVariant="menu"
       loading={isFetching}
@@ -143,5 +198,20 @@ export default function Bookings() {
       totalResults={getPaginationValue(data, "totalResults")}
       onPageChange={setPage}
     />
+
+      <ConfirmDialog
+        open={!!pending}
+        title={pending ? `${pending.action.label} this booking?` : ""}
+        description={
+          pending
+            ? `This booking will be ${pending.action.past}.`
+            : ""
+        }
+        confirmClass={pending ? CONFIRM_BTN_CLS[pending.action.color] : undefined}
+        loading={updatingStatus}
+        onConfirm={handleConfirm}
+        onCancel={() => setPending(null)}
+      />
+    </>
   )
 }

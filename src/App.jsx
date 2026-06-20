@@ -9,6 +9,7 @@ import Salons from "@/components/salon/Salons"
 import SalonDetail from "@/components/salon/SalonDetail"
 import Customers from "@/components/customers/Customers"
 import Bookings from "@/components/bookings/Bookings"
+import BookingDetails from "@/components/bookings/BookingDetails"
 import Reports from "@/components/reports/Reports"
 import Settings from "@/components/settings/Settings"
 import Notifications from "@/components/notifications/Notifications"
@@ -37,6 +38,7 @@ export default function App() {
               <Route path="/salons" element={<Salons />} />
               <Route path="/customers" element={<Customers />} />
               <Route path="/bookings" element={<Bookings />} />
+              <Route path="/booking-details/:id" element={<BookingDetails />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/settings" element={<Settings />} />

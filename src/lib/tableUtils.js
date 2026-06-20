@@ -102,6 +102,26 @@ export const bookingPriceColor = {
   noShow: "text-muted-foreground",
 }
 
+// Admin status actions and the transitions allowed from each current status.
+// Target statuses map to the PATCH /bookings/admin/{id}/status payload.
+export const bookingStatusActions = [
+  { status: "confirmed", label: "Confirm",        color: "green", past: "confirmed" },
+  { status: "completed", label: "Mark Completed", color: "blue",  past: "completed" },
+  { status: "noShow",    label: "Mark No-Show",   color: "amber", past: "marked as no-show" },
+  { status: "cancelled", label: "Cancel",         color: "red",   past: "cancelled" },
+]
+
+// Any booking can be moved to any other status (actions available from every tab);
+// the only one hidden is the status it is already in.
+const BOOKING_TARGETS = ["confirmed", "completed", "noShow", "cancelled"]
+export const bookingStatusTransitions = {
+  pending:   BOOKING_TARGETS,
+  confirmed: BOOKING_TARGETS.filter((s) => s !== "confirmed"),
+  completed: BOOKING_TARGETS.filter((s) => s !== "completed"),
+  cancelled: BOOKING_TARGETS.filter((s) => s !== "cancelled"),
+  noShow:    BOOKING_TARGETS.filter((s) => s !== "noShow"),
+}
+
 export const bookingFilters = [
   { label: "All",       value: "all" },
   { label: "Pending",   value: "pending" },

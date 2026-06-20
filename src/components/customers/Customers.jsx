@@ -4,6 +4,7 @@ import { FiEye, FiPauseCircle, FiUserCheck, FiUserX } from "react-icons/fi"
 import { toast } from "sonner"
 import DynamicTable from "@/components/DynamicTable"
 import ApiErrorModal from "@/components/ApiErrorModal"
+import ConfirmDialog from "@/components/ConfirmDialog"
 import { customerFilters, customerStatusConfig } from "@/lib/tableUtils"
 import { parseApiError } from "@/lib/apiError"
 import { useApiError } from "@/hooks/useApiError"
@@ -27,6 +28,13 @@ const formatDate = (value) => {
 }
 
 const normalizeStatus = (status) => String(status ?? "active").toLowerCase()
+
+// Confirmation copy + confirm-button styling per target status.
+const STATUS_ACTION_COPY = {
+  active: { label: "Activate", verb: "activated", confirmClass: "bg-emerald-600 text-white hover:bg-emerald-600/90" },
+  suspended: { label: "Suspend", verb: "suspended", confirmClass: "bg-amber-600 text-white hover:bg-amber-600/90" },
+  blocked: { label: "Block", verb: "blocked", confirmClass: "bg-red-600 text-white hover:bg-red-600/90" },
+}
 
 const unwrapCustomers = (response) =>
   response?.results ??
@@ -112,10 +120,15 @@ export default function Customers() {
     },
   ]
 
-  const handleStatusChange = async (row, nextStatus) => {
+  // Pending status change awaiting confirmation: { row, status } | null
+  const [pending, setPending] = useState(null)
+
+  const handleConfirm = async () => {
+    if (!pending) return
     try {
-      await updateCustomerStatus({ customerId: row.id, status: nextStatus }).unwrap()
-      toast.success(`${row.name} is now ${customerStatusConfig[nextStatus]?.label ?? nextStatus}`)
+      await updateCustomerStatus({ customerId: pending.row.id, status: pending.status }).unwrap()
+      toast.success(`${pending.row.name} is now ${customerStatusConfig[pending.status]?.label ?? pending.status}`)
+      setPending(null)
     } catch (err) {
       showError(err)
     }
@@ -133,21 +146,21 @@ export default function Customers() {
       icon: FiUserCheck,
       color: "green",
       show: (row) => row.status !== "active",
-      onClick: (row) => handleStatusChange(row, "active"),
+      onClick: (row) => setPending({ row, status: "active" }),
     },
     {
       label: "Suspend",
       icon: FiPauseCircle,
       color: "amber",
       show: (row) => row.status !== "suspended",
-      onClick: (row) => handleStatusChange(row, "suspended"),
+      onClick: (row) => setPending({ row, status: "suspended" }),
     },
     {
       label: "Block",
       icon: FiUserX,
       color: "red",
       show: (row) => row.status !== "blocked",
-      onClick: (row) => handleStatusChange(row, "blocked"),
+      onClick: (row) => setPending({ row, status: "blocked" }),
     },
   ]
 
@@ -179,6 +192,20 @@ export default function Customers() {
         totalPages={getPaginationValue(data, "totalPages")}
         totalResults={getPaginationValue(data, "totalResults")}
         onPageChange={setPage}
+      />
+
+      <ConfirmDialog
+        open={!!pending}
+        title={pending ? `${STATUS_ACTION_COPY[pending.status]?.label} this customer?` : ""}
+        description={
+          pending
+            ? `${pending.row.name} will be ${STATUS_ACTION_COPY[pending.status]?.verb}.`
+            : ""
+        }
+        confirmClass={pending ? STATUS_ACTION_COPY[pending.status]?.confirmClass : undefined}
+        loading={updating}
+        onConfirm={handleConfirm}
+        onCancel={() => setPending(null)}
       />
 
       <ApiErrorModal error={apiError} onClose={clearError} />
