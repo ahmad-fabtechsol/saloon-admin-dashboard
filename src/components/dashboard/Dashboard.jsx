@@ -28,7 +28,7 @@ const statDefinitions = [
   {
     title: "Revenue (MTD)",
     icon: "TrendingUp",
-    keys: ["revenueMTD", "mtdRevenue", "monthlyRevenue", "revenue"],
+    keys: ["revenueMtd", "revenueMTD", "mtdRevenue", "monthlyRevenue", "revenue"],
     valueColor: "green",
   },
   {
@@ -61,18 +61,43 @@ const formatStatValue = (value) => {
   return String(value)
 }
 
+const formatTrendValue = (metric) => {
+  if (typeof metric?.changePercent === "number") {
+    return `${metric.changePercent > 0 ? "+" : ""}${metric.changePercent}%`
+  }
+  if (typeof metric?.changeValue === "number") {
+    return `${metric.changeValue > 0 ? "+" : ""}${metric.changeValue}`
+  }
+  return ""
+}
+
 const resolveStats = (payload) => {
   const stats = payload.stats ?? payload.cards ?? payload.metrics?.stats
   if (Array.isArray(stats) && stats.length) return stats
 
   const source = payload.metrics ?? payload.summary ?? payload
-  return statDefinitions.map((stat) => ({
-    ...stat,
-    value: formatStatValue(pickFirstValue(source, stat.keys)),
-    trend: pickFirstValue(source, [`${stat.keys[0]}Trend`, `${stat.keys[0]}Direction`]) ?? "up",
-    trendValue: pickFirstValue(source, [`${stat.keys[0]}TrendValue`, `${stat.keys[0]}Change`]) ?? "",
-    description: pickFirstValue(source, [`${stat.keys[0]}Description`]) ?? "",
-  }))
+  return statDefinitions.map((stat) => {
+    const metric = pickFirstValue(stats && !Array.isArray(stats) ? stats : source, stat.keys)
+    // Structured metric: { value, changePercent | changeValue, comparisonLabel }
+    if (metric && typeof metric === "object" && !Array.isArray(metric)) {
+      const change = metric.changePercent ?? metric.changeValue
+      return {
+        ...stat,
+        value: formatStatValue(metric.value),
+        trend: typeof change === "number" && change < 0 ? "down" : "up",
+        trendValue: formatTrendValue(metric),
+        description: metric.comparisonLabel ?? "",
+      }
+    }
+    // Flat shape fallback
+    return {
+      ...stat,
+      value: formatStatValue(metric),
+      trend: pickFirstValue(source, [`${stat.keys[0]}Trend`, `${stat.keys[0]}Direction`]) ?? "up",
+      trendValue: pickFirstValue(source, [`${stat.keys[0]}TrendValue`, `${stat.keys[0]}Change`]) ?? "",
+      description: pickFirstValue(source, [`${stat.keys[0]}Description`]) ?? "",
+    }
+  })
 }
 
 const resolveActivities = (payload) =>
