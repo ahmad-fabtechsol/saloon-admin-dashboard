@@ -15,6 +15,7 @@ import {
 
 import { useAuth } from "@/hooks/useAuth"
 import ConfirmDialog from "@/components/ConfirmDialog"
+import UserAvatar from "@/components/UserAvatar"
 import whiteLogo from "@/assets/dark-logo.png"
 import {
   Sidebar,
@@ -61,7 +62,11 @@ export function AppSidebar({ ...props }) {
   return (
     <Sidebar {...props}>
       <SidebarHeader className="px-4 py-4">
-        <div className="flex items-center gap-3">
+        <Link
+          to="/dashboard"
+          className="flex items-center gap-3 rounded-md focus:outline-none focus:ring-2 focus:ring-sidebar-ring"
+          title="Go to dashboard"
+        >
           <img
             src={whiteLogo}
             alt="SalonPanda"
@@ -71,7 +76,7 @@ export function AppSidebar({ ...props }) {
             <span className="font-semibold">SalonPanda</span>
             <span className="text-xs text-sidebar-foreground/60">Management Panel</span>
           </div>
-        </div>
+        </Link>
       </SidebarHeader>
 
       <SidebarContent>
@@ -119,9 +124,15 @@ export function AppSidebar({ ...props }) {
 
       <SidebarFooter className="px-4 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-xs font-semibold text-sidebar-accent-foreground">
-            {user?.name?.charAt(0).toUpperCase() ?? "A"}
-          </div>
+          <UserAvatar
+            src={user?.profilePicture}
+            className="h-8 w-8 shrink-0 rounded-full"
+            fallback={
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-xs font-semibold text-sidebar-accent-foreground">
+                {user?.name?.charAt(0).toUpperCase() ?? "A"}
+              </div>
+            }
+          />
           <div className="flex min-w-0 flex-col leading-none">
             <span className="truncate text-sm font-medium">{user?.name ?? "Admin User"}</span>
             <span className="truncate text-xs text-sidebar-foreground/60">{user?.email ?? ""}</span>

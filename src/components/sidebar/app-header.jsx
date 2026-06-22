@@ -4,6 +4,7 @@ import { Bell, LogOut, User } from "lucide-react"
 import { toast } from "sonner"
 import { useAuth } from "@/hooks/useAuth"
 import ConfirmDialog from "@/components/ConfirmDialog"
+import UserAvatar from "@/components/UserAvatar"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import {
   Breadcrumb,
@@ -172,9 +173,15 @@ export default function AppHeader() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-sidebar text-xs font-semibold text-sidebar-foreground">
-                      {initials}
-                    </span>
+                    <UserAvatar
+                      src={user?.profilePicture}
+                      className="h-7 w-7 rounded-full"
+                      fallback={
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-sidebar text-xs font-semibold text-sidebar-foreground">
+                          {initials}
+                        </span>
+                      }
+                    />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
