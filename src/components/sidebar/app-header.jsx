@@ -1,7 +1,9 @@
+import { useState } from "react"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { Bell, LogOut, User } from "lucide-react"
 import { toast } from "sonner"
 import { useAuth } from "@/hooks/useAuth"
+import ConfirmDialog from "@/components/ConfirmDialog"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import {
   Breadcrumb,
@@ -34,6 +36,7 @@ const routeLabels = {
   "/customers": ["Home", "Customers"],
   "/bookings": ["Home", "Bookings"],
   "/reports": ["System", "Reports"],
+  "/feedback": ["System", "Feedback"],
   "/settings": ["System", "Settings"],
 }
 
@@ -66,6 +69,7 @@ export default function AppHeader() {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
   const [section, page] = routeLabels[pathname] ?? ["Home", "Page"]
+  const [confirmLogout, setConfirmLogout] = useState(false)
 
   const unreadCount = notifications.filter((n) => n.unread).length
   const initials =
@@ -189,7 +193,7 @@ export default function AppHeader() {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={handleLogout}
+                    onClick={() => setConfirmLogout(true)}
                     className="text-destructive focus:text-destructive"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
@@ -205,6 +209,20 @@ export default function AppHeader() {
             <Outlet />
           </div>
         </SidebarInset>
+
+        <ConfirmDialog
+          open={confirmLogout}
+          title="Sign out?"
+          description="You'll need to log in again to access the dashboard."
+          confirmLabel="Sign out"
+          cancelLabel="Cancel"
+          confirmClass="bg-red-600 text-white hover:bg-red-600/90"
+          onConfirm={() => {
+            setConfirmLogout(false)
+            handleLogout()
+          }}
+          onCancel={() => setConfirmLogout(false)}
+        />
       </SidebarProvider>
     </TooltipProvider>
   )

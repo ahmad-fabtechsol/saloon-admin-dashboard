@@ -11,6 +11,8 @@ import Customers from "@/components/customers/Customers"
 import Bookings from "@/components/bookings/Bookings"
 import BookingDetails from "@/components/bookings/BookingDetails"
 import Reports from "@/components/reports/Reports"
+import Feedback from "@/components/feedback/Feedback"
+import FeedbackDetail from "@/components/feedback/FeedbackDetail"
 import Settings from "@/components/settings/Settings"
 import Notifications from "@/components/notifications/Notifications"
 import NotFound from "@/pages/NotFound"
@@ -40,10 +42,11 @@ export default function App() {
               <Route path="/bookings" element={<Bookings />} />
               <Route path="/booking-details/:id" element={<BookingDetails />} />
               <Route path="/reports" element={<Reports />} />
+              <Route path="/feedback" element={<Feedback />} />
+              <Route path="/feedback-details/:id" element={<FeedbackDetail />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/salon-details/:id" element={<SalonDetail />} />
-              <Route path="/customer-details/:id" element={<Dashboard />} />
             </Route>
           </Route>
 

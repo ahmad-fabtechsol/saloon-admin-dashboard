@@ -131,6 +131,72 @@ export const bookingFilters = [
   { label: "No-Show",   value: "noShow" },
 ]
 
+// ─── Feedback ─────────────────────────────────────────────────────────────────
+// Used by: Feedback.jsx / FeedbackDetail.jsx — status/type/priority badges and filter tabs
+// Column definitions with JSX renders live in tableColumns.jsx
+
+export const feedbackStatusConfig = {
+  open:      { label: "Open",       icon: AlertTriangle, cls: "bg-[#145E94]/10 text-[#145E94] ring-[#145E94]/20" },
+  inReview:  { label: "In Review",  icon: PauseCircle,   cls: "bg-amber-50 text-amber-700 ring-amber-200" },
+  resolved:  { label: "Resolved",   icon: CheckCircle2,  cls: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
+  closed:    { label: "Closed",     icon: XCircle,       cls: "bg-slate-100 text-slate-600 ring-slate-200" },
+}
+
+// API type values: [appBug, appSuggestion, appOther, customerReport, salonReport, bookingReport, general]
+export const feedbackTypeConfig = {
+  appBug:         { label: "App Bug",         cls: "bg-red-50 text-red-600 ring-red-200" },
+  appSuggestion:  { label: "App Suggestion",  cls: "bg-[#145E94]/10 text-[#145E94] ring-[#145E94]/20" },
+  appOther:       { label: "App Other",       cls: "bg-slate-100 text-slate-600 ring-slate-200" },
+  customerReport: { label: "Customer Report", cls: "bg-amber-50 text-amber-700 ring-amber-200" },
+  salonReport:    { label: "Salon Report",    cls: "bg-purple-50 text-purple-600 ring-purple-200" },
+  bookingReport:  { label: "Booking Report",  cls: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
+  general:        { label: "General",         cls: "bg-slate-100 text-slate-600 ring-slate-200" },
+  other:          { label: "Other",           cls: "bg-slate-100 text-slate-600 ring-slate-200" },
+}
+
+export const feedbackPriorityConfig = {
+  low:    { label: "Low",    cls: "bg-slate-100 text-slate-600 ring-slate-200" },
+  medium: { label: "Medium", cls: "bg-amber-50 text-amber-700 ring-amber-200" },
+  high:   { label: "High",   cls: "bg-red-50 text-red-600 ring-red-200" },
+  urgent: { label: "Urgent", cls: "bg-red-100 text-red-700 ring-red-300" },
+}
+
+// Status filter tabs — `value` is sent as the API `status` param ("all" omits it).
+export const feedbackFilters = [
+  { label: "All",       value: "all" },
+  { label: "Open",      value: "open" },
+  { label: "In Review", value: "inReview" },
+  { label: "Resolved",  value: "resolved" },
+  { label: "Closed",    value: "closed" },
+]
+
+// Type dropdown options — `value` is sent as the API `type` param ("all" omits it).
+export const feedbackTypeOptions = [
+  { label: "All Types",       value: "all" },
+  { label: "App Bug",         value: "appBug" },
+  { label: "App Suggestion",  value: "appSuggestion" },
+  { label: "App Other",       value: "appOther" },
+  { label: "Customer Report", value: "customerReport" },
+  { label: "Salon Report",    value: "salonReport" },
+  { label: "Booking Report",  value: "bookingReport" },
+  { label: "General",         value: "general" },
+]
+
+// Editable options for the detail page update form.
+export const feedbackStatusOptions = [
+  { label: "Open",      value: "open" },
+  { label: "In Review", value: "inReview" },
+  { label: "Resolved",  value: "resolved" },
+  { label: "Closed",    value: "closed" },
+]
+
+// API accepts only [low, medium, high].
+export const feedbackPriorityOptions = [
+  { label: "Low",    value: "low" },
+  { label: "Medium", value: "medium" },
+  { label: "High",   value: "high" },
+]
+
 // ─── Notifications ────────────────────────────────────────────────────────────
 // Used by: Notifications.jsx — type badge styles and filter tab config
 

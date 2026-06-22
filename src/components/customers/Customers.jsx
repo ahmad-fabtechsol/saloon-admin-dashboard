@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { FiEye, FiPauseCircle, FiUserCheck, FiUserX } from "react-icons/fi"
+import { FiPauseCircle, FiUserCheck, FiUserX } from "react-icons/fi"
 import { toast } from "sonner"
 import DynamicTable from "@/components/DynamicTable"
 import ApiErrorModal from "@/components/ApiErrorModal"
@@ -62,7 +61,6 @@ function toRow(customer) {
 }
 
 export default function Customers() {
-  const navigate = useNavigate()
   const { error: apiError, showError, clearError } = useApiError()
 
   const [status, setStatus] = useState("all")
@@ -136,12 +134,6 @@ export default function Customers() {
 
   const actions = [
     {
-      label: "View details",
-      icon: FiEye,
-      color: "brand",
-      onClick: (row) => navigate(`/customer-details/${row.id}`),
-    },
-    {
       label: "Activate",
       icon: FiUserCheck,
       color: "green",
@@ -172,8 +164,6 @@ export default function Customers() {
         searchKey={["name", "phone"]}
         searchValue={search}
         onSearchChange={setSearch}
-        exportLabel="Export"
-        onExport={() => console.log("export")}
         filters={customerFilters}
         activeFilter={status}
         onFilterChange={(value) => {

@@ -31,6 +31,24 @@ export const bookingApi = baseApi.injectEndpoints({
       },
     }),
 
+    // GET /bookings/admin/export?status=&startDate=&endDate= → CSV file (blob)
+    exportBookings: builder.mutation({
+      query: ({ status, startDate, endDate } = {}) => {
+        const params = new URLSearchParams();
+        if (status) params.set('status', status);
+        if (startDate) params.set('startDate', startDate);
+        if (endDate) params.set('endDate', endDate);
+
+        const qs = params.toString();
+        return {
+          url: `/bookings/admin/export${qs ? `?${qs}` : ''}`,
+          method: 'GET',
+          responseHandler: (response) => response.blob(),
+          cache: 'no-cache',
+        };
+      },
+    }),
+
     // GET /bookings/admin/{bookingId}
     getBookingById: builder.query({
       query: (bookingId) => ({
@@ -69,6 +87,7 @@ export const bookingApi = baseApi.injectEndpoints({
 
 export const {
   useGetBookingsQuery,
+  useExportBookingsMutation,
   useGetBookingByIdQuery,
   useUpdateBookingStatusMutation,
 } = bookingApi;

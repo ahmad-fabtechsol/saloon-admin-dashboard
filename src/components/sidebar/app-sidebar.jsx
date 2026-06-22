@@ -1,17 +1,20 @@
 import * as React from "react"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 import {
   BarChart2,
   Bell,
   CalendarDays,
   Home,
   LogOut,
+  MessageSquare,
   Scissors,
   Settings2,
   Users,
 } from "lucide-react"
 
 import { useAuth } from "@/hooks/useAuth"
+import ConfirmDialog from "@/components/ConfirmDialog"
 import whiteLogo from "@/assets/dark-logo.png"
 import {
   Sidebar,
@@ -37,13 +40,23 @@ const navMain = [
 
 const navSystem = [
   { title: "Reports",       url: "/reports",       icon: BarChart2 },
+  { title: "Feedback",      url: "/feedback",      icon: MessageSquare },
   { title: "Notifications", url: "/notifications", icon: Bell },
   { title: "Settings",      url: "/settings",      icon: Settings2 },
 ]
 
 export function AppSidebar({ ...props }) {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const { user, logout } = useAuth()
+  const [confirmLogout, setConfirmLogout] = React.useState(false)
+
+  function handleLogout() {
+    setConfirmLogout(false)
+    logout()
+    toast.success("Signed out successfully")
+    navigate("/login")
+  }
 
   return (
     <Sidebar {...props}>
@@ -114,7 +127,7 @@ export function AppSidebar({ ...props }) {
             <span className="truncate text-xs text-sidebar-foreground/60">{user?.email ?? ""}</span>
           </div>
           <button
-            onClick={logout}
+            onClick={() => setConfirmLogout(true)}
             className="ml-auto text-sidebar-foreground/60 hover:text-sidebar-foreground"
             title="Sign out"
           >
@@ -124,6 +137,17 @@ export function AppSidebar({ ...props }) {
       </SidebarFooter>
 
       <SidebarRail />
+
+      <ConfirmDialog
+        open={confirmLogout}
+        title="Sign out?"
+        description="You'll need to log in again to access the dashboard."
+        confirmLabel="Sign out"
+        cancelLabel="Cancel"
+        confirmClass="bg-red-600 text-white hover:bg-red-600/90"
+        onConfirm={handleLogout}
+        onCancel={() => setConfirmLogout(false)}
+      />
     </Sidebar>
   )
 }

@@ -11,6 +11,7 @@ import { bookingColumns } from "@/lib/tableColumns"
 import { parseApiError } from "@/lib/apiError"
 import {
   useGetBookingsQuery,
+  useExportBookingsMutation,
   useUpdateBookingStatusMutation,
 } from "@/store/booking/bookingApiSlice"
 
@@ -134,6 +135,30 @@ export default function Bookings() {
 
   const rows = useMemo(() => unwrapBookings(data).map(toRow), [data])
 
+  const [exportBookings, { isLoading: exporting }] = useExportBookingsMutation()
+
+  const handleExport = async () => {
+    try {
+      const blob = await exportBookings({
+        status: status === "all" ? undefined : status,
+        startDate,
+        endDate,
+      }).unwrap()
+
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `bookings-${format(new Date(), "yyyy-MM-dd")}.csv`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+      toast.success("Bookings exported")
+    } catch (err) {
+      toast.error(parseApiError(err).message)
+    }
+  }
+
   const [updateBookingStatus, { isLoading: updatingStatus }] = useUpdateBookingStatusMutation()
   // Pending status change awaiting confirmation: { row, action } | null
   const [pending, setPending] = useState(null)
@@ -176,8 +201,8 @@ export default function Bookings() {
       headerExtra={
         <DateRangePicker range={dateRange} onChange={handleDateRangeChange} align="end" />
       }
-      exportLabel="Export CSV"
-      onExport={() => console.log("export")}
+      exportLabel={exporting ? "Exporting…" : "Export CSV"}
+      onExport={handleExport}
       filters={bookingFilters}
       activeFilter={status}
       onFilterChange={(value) => {

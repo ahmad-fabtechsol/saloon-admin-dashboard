@@ -124,8 +124,6 @@ export default function Salons() {
         title="All Salons"
         searchPlaceholder="Search salons..."
         searchKey={["name", "city", "owner"]}
-        exportLabel="Export"
-        onExport={() => console.log("export")}
         filters={salonFilters}
         activeFilter={status}
         onFilterChange={(value) => {

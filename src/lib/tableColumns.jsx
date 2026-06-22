@@ -2,7 +2,15 @@
 // Static config (statusConfig, filters, actionColors) lives in tableUtils.js.
 
 import { Star } from "lucide-react"
-import { salonStatusConfig, bookingStatusConfig, bookingPriceColor, notificationTypeConfig } from "@/lib/tableUtils"
+import {
+  salonStatusConfig,
+  bookingStatusConfig,
+  bookingPriceColor,
+  notificationTypeConfig,
+  feedbackStatusConfig,
+  feedbackTypeConfig,
+  feedbackPriorityConfig,
+} from "@/lib/tableUtils"
 
 // ─── Salons ───────────────────────────────────────────────────────────────────
 // Used by: Salons.jsx
@@ -58,13 +66,6 @@ export const topSalonsColumns = [
 // Used by: Bookings.jsx
 
 export const bookingColumns = [
-  {
-    key: "id",
-    label: "#ID",
-    render: (val) => (
-      <span className="font-mono text-sm text-muted-foreground">#{val}</span>
-    ),
-  },
   {
     key: "customer",
     label: "Customer",
@@ -140,5 +141,62 @@ export const notificationColumns = [
         {val}
       </span>
     ),
+  },
+]
+
+// ─── Feedback ─────────────────────────────────────────────────────────────────
+// Used by: Feedback.jsx
+
+export const feedbackColumns = [
+  {
+    key: "subject",
+    label: "Subject",
+    bold: true,
+    render: (val, row) => (
+      <div className="flex flex-col leading-tight">
+        <span className="font-semibold text-sm">{val}</span>
+        <span className="line-clamp-1 max-w-xs text-xs text-muted-foreground">{row.message}</span>
+      </div>
+    ),
+  },
+  {
+    key: "type",
+    label: "Type",
+    render: (val) => {
+      const { label, cls } = feedbackTypeConfig[val] ?? feedbackTypeConfig.other
+      return (
+        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ${cls}`}>
+          {label}
+        </span>
+      )
+    },
+  },
+  { key: "user", label: "Submitted By" },
+  {
+    key: "priority",
+    label: "Priority",
+    render: (val) => {
+      if (!val) return <span className="text-xs text-muted-foreground">—</span>
+      const { label, cls } = feedbackPriorityConfig[val] ?? feedbackPriorityConfig.low
+      return (
+        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ${cls}`}>
+          {label}
+        </span>
+      )
+    },
+  },
+  { key: "created", label: "Submitted" },
+  {
+    key: "status",
+    label: "Status",
+    render: (val) => {
+      const { label, icon: Icon, cls } = feedbackStatusConfig[val] ?? feedbackStatusConfig.open
+      return (
+        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ${cls}`}>
+          <Icon className="h-3 w-3" />
+          {label}
+        </span>
+      )
+    },
   },
 ]
