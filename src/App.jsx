@@ -7,6 +7,7 @@ import ResetPassword from "@/pages/ResetPassword"
 import Dashboard from "@/components/dashboard/Dashboard"
 import Salons from "@/components/salon/Salons"
 import SalonDetail from "@/components/salon/SalonDetail"
+import Approvals from "@/components/salon/Approvals"
 import Customers from "@/components/customers/Customers"
 import Bookings from "@/components/bookings/Bookings"
 import BookingDetails from "@/components/bookings/BookingDetails"
@@ -38,6 +39,7 @@ export default function App() {
             <Route element={<AppHeader />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/salons" element={<Salons />} />
+              <Route path="/approvals" element={<Approvals />} />
               <Route path="/customers" element={<Customers />} />
               <Route path="/bookings" element={<Bookings />} />
               <Route path="/booking-details/:id" element={<BookingDetails />} />

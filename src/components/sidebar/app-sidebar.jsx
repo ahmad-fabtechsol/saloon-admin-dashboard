@@ -5,6 +5,7 @@ import {
   BarChart2,
   Bell,
   CalendarDays,
+  ClipboardCheck,
   Home,
   LogOut,
   MessageSquare,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react"
 
 import { useAuth } from "@/hooks/useAuth"
+import { useGetPendingApprovalsQuery } from "@/store/salon/salonApiSlice"
 import ConfirmDialog from "@/components/ConfirmDialog"
 import UserAvatar from "@/components/UserAvatar"
 import whiteLogo from "@/assets/dark-logo.png"
@@ -35,6 +37,7 @@ import {
 const navMain = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Salons", url: "/salons", icon: Scissors },
+  { title: "Approvals", url: "/approvals", icon: ClipboardCheck },
   { title: "Customers", url: "/customers", icon: Users },
   { title: "Bookings", url: "/bookings", icon: CalendarDays },
 ]
@@ -51,6 +54,14 @@ export function AppSidebar({ ...props }) {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
   const [confirmLogout, setConfirmLogout] = React.useState(false)
+
+  // Live count for the Approvals badge — shares the cache key the page uses and
+  // polls every 30s so the badge stays current without a manual refresh.
+  const { data: approvals } = useGetPendingApprovalsQuery(
+    { page: 1, limit: 10 },
+    { pollingInterval: 30000 }
+  )
+  const pendingCount = approvals?.totalResults ?? 0
 
   function handleLogout() {
     setConfirmLogout(false)
@@ -92,9 +103,9 @@ export function AppSidebar({ ...props }) {
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
-                  {item.badge && (
+                  {item.url === "/approvals" && pendingCount > 0 && (
                     <SidebarMenuBadge className="rounded-full bg-[#145E94] text-white">
-                      {item.badge}
+                      {pendingCount > 99 ? "99+" : pendingCount}
                     </SidebarMenuBadge>
                   )}
                 </SidebarMenuItem>

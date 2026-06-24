@@ -30,6 +30,11 @@ import {
 } from "@/components/ui/sidebar"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import ThemeToggle from "@/components/ThemeToggle"
+import {
+  useGetUnreadNotificationsQuery,
+  useMarkNotificationReadMutation,
+  useMarkAllNotificationsReadMutation,
+} from "@/store/notification/notificationApiSlice"
 
 const routeLabels = {
   "/dashboard": ["Home", "Dashboard"],
@@ -41,29 +46,41 @@ const routeLabels = {
   "/settings": ["System", "Settings"],
 }
 
-const notifications = [
-  {
-    id: 1,
-    title: "New booking received",
-    desc: "Appointment #1042 confirmed",
-    time: "2m ago",
-    unread: true,
-  },
-  {
-    id: 2,
-    title: "Salon profile updated",
-    desc: "Elite Cuts updated their info",
-    time: "1h ago",
-    unread: true,
-  },
-  {
-    id: 3,
-    title: "New customer registered",
-    desc: "Sara Ahmed joined the platform",
-    time: "3h ago",
-    unread: false,
-  },
-]
+// Tolerate the various envelopes the list endpoint might use.
+const unwrapNotifications = (response) =>
+  response?.results ??
+  response?.data?.results ??
+  response?.notifications ??
+  response?.data?.notifications ??
+  (Array.isArray(response?.data) ? response.data : null) ??
+  []
+
+const paginationValue = (response, key) =>
+  response?.[key] ?? response?.data?.[key] ?? response?.pagination?.[key]
+
+function formatRelative(value) {
+  if (!value) return ""
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ""
+  const diff = Date.now() - date.getTime()
+  const min = Math.round(diff / 60000)
+  if (min < 1) return "just now"
+  if (min < 60) return `${min}m ago`
+  const hr = Math.round(min / 60)
+  if (hr < 24) return `${hr}h ago`
+  const day = Math.round(hr / 24)
+  if (day < 7) return `${day}d ago`
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" })
+}
+
+function toNotificationItem(n) {
+  return {
+    id: n._id ?? n.id,
+    title: n.title ?? n.message ?? n.body ?? n.text ?? "Notification",
+    desc: n.message && n.title ? n.message : (n.type ?? n.category ?? ""),
+    time: formatRelative(n.createdAt ?? n.timestamp ?? n.time),
+  }
+}
 
 export default function AppHeader() {
   const { pathname } = useLocation()
@@ -72,7 +89,37 @@ export default function AppHeader() {
   const [section, page] = routeLabels[pathname] ?? ["Home", "Page"]
   const [confirmLogout, setConfirmLogout] = useState(false)
 
-  const unreadCount = notifications.filter((n) => n.unread).length
+  // Live unread notifications for the bell dropdown (badge + recent preview).
+  const { data: unreadData } = useGetUnreadNotificationsQuery(
+    { page: 1, limit: 5 },
+    { pollingInterval: 30000 }
+  )
+  const [markRead] = useMarkNotificationReadMutation()
+  const [markAllRead] = useMarkAllNotificationsReadMutation()
+
+  const notifications = unwrapNotifications(unreadData).map(toNotificationItem)
+  const unreadCount = paginationValue(unreadData, "totalResults") ?? notifications.length
+
+  async function handleNotificationClick(id) {
+    if (id != null) {
+      try {
+        await markRead(id).unwrap()
+      } catch {
+        /* non-blocking — navigation still proceeds */
+      }
+    }
+    navigate("/notifications")
+  }
+
+  async function handleMarkAllRead() {
+    try {
+      await markAllRead().unwrap()
+      toast.success("All notifications marked as read")
+    } catch {
+      toast.error("Couldn't mark notifications as read")
+    }
+  }
+
   const initials =
     user?.name
       ?.split(" ")
@@ -133,37 +180,50 @@ export default function AppHeader() {
                   <DropdownMenuLabel className="flex items-center justify-between">
                     <span>Notifications</span>
                     {unreadCount > 0 && (
-                      <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-xs font-medium text-orange-600">
-                        {unreadCount} new
-                      </span>
+                      <button
+                        onClick={handleMarkAllRead}
+                        className="rounded-full px-2 py-0.5 text-xs font-medium text-[#145E94] hover:bg-[#145E94]/10"
+                      >
+                        Mark all read
+                      </button>
                     )}
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {notifications.map((n) => (
-                    <DropdownMenuItem
-                      key={n.id}
-                      className="flex flex-col items-start gap-0.5 px-3 py-2.5"
-                    >
-                      <div className="flex w-full items-center gap-2">
-                        {n.unread && (
+                  {notifications.length === 0 ? (
+                    <div className="px-3 py-6 text-center text-xs text-muted-foreground">
+                      You're all caught up.
+                    </div>
+                  ) : (
+                    notifications.map((n) => (
+                      <DropdownMenuItem
+                        key={n.id}
+                        onClick={() => handleNotificationClick(n.id)}
+                        className="flex cursor-pointer flex-col items-start gap-0.5 px-3 py-2.5"
+                      >
+                        <div className="flex w-full items-center gap-2">
                           <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-orange-500" />
+                          <span className="flex-1 truncate text-sm font-medium">
+                            {n.title}
+                          </span>
+                          {n.time && (
+                            <span className="shrink-0 text-xs text-muted-foreground">
+                              {n.time}
+                            </span>
+                          )}
+                        </div>
+                        {n.desc && (
+                          <p className="pl-3.5 text-xs text-muted-foreground">
+                            {n.desc}
+                          </p>
                         )}
-                        <span
-                          className={`flex-1 text-sm font-medium ${!n.unread && "pl-3.5"}`}
-                        >
-                          {n.title}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {n.time}
-                        </span>
-                      </div>
-                      <p className="pl-3.5 text-xs text-muted-foreground">
-                        {n.desc}
-                      </p>
-                    </DropdownMenuItem>
-                  ))}
+                      </DropdownMenuItem>
+                    ))
+                  )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="justify-center text-xs text-muted-foreground">
+                  <DropdownMenuItem
+                    onClick={() => navigate("/notifications")}
+                    className="cursor-pointer justify-center text-xs text-muted-foreground"
+                  >
                     View all notifications
                   </DropdownMenuItem>
                 </DropdownMenuContent>

@@ -210,7 +210,6 @@ export const notificationTypeConfig = {
 export const notificationFilters = [
   { label: "All",    value: "all" },
   { label: "Unread", value: "Unread" },
-  { label: "Read",   value: "Read" },
 ]
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
