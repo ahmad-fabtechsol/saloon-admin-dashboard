@@ -84,6 +84,9 @@ const HIDDEN_KEYS = new Set([
   "updatedAt",
   "serviceName",
   "serviceCategory",
+  // The proposed changes are unwrapped from here and rendered explicitly.
+  "pendingChanges",
+  "pendingChange",
 ])
 
 function formatValue(v) {
@@ -162,10 +165,18 @@ function PageHeader({ total }) {
 
 function PendingItemCard({ item, onReview, onOpenSalon, isMutating }) {
   const isService = isServiceItem(item)
-  const photos = getPhotos(item)
-  const changeRows = Object.entries(item).filter(
-    ([k, v]) => !HIDDEN_KEYS.has(k) && !k.startsWith("_") && v != null && v !== ""
-  )
+  // Salon updates wrap their proposed values in `pendingChanges`; services don't.
+  const changes = (!isService && (item.pendingChanges ?? item.pendingChange)) || {}
+  // Prefer photos from the pending changes, falling back to any on the item itself.
+  const photos = getPhotos(changes).length ? getPhotos(changes) : getPhotos(item)
+  const changeRows = [
+    ...Object.entries(item).filter(
+      ([k, v]) => !HIDDEN_KEYS.has(k) && !k.startsWith("_") && v != null && v !== ""
+    ),
+    ...Object.entries(changes).filter(
+      ([k, v]) => !PHOTO_KEYS.includes(k) && v != null && v !== ""
+    ),
+  ]
 
   const title = isService
     ? (item.serviceName ?? "Unnamed service")
