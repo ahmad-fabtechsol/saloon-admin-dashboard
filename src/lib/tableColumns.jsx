@@ -111,10 +111,10 @@ export const notificationColumns = [
     key: "type",
     label: "Type",
     render: (val) => {
-      const { cls } = notificationTypeConfig[val] ?? notificationTypeConfig.System
+      const cfg = notificationTypeConfig[val] ?? notificationTypeConfig.system
       return (
-        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ${cls}`}>
-          {val}
+        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ${cfg.cls}`}>
+          {cfg.label ?? val}
         </span>
       )
     },

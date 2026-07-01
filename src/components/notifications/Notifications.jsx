@@ -17,15 +17,21 @@ import {
 
 const PAGE_SIZE = 10
 
-const KNOWN_TYPES = ["Booking", "Salon", "Customer", "System"]
-
-const capitalize = (s) =>
-  typeof s === "string" && s ? s.charAt(0).toUpperCase() + s.slice(1) : s
+const KNOWN_TYPES = [
+  "message",
+  "booking",
+  "listing",
+  "verification",
+  "user",
+  "flagged",
+  "inquiry",
+  "system",
+]
 
 // Normalise the API `type` to one of the configured badge keys.
 function normalizeType(value) {
-  const label = capitalize(value)
-  return KNOWN_TYPES.includes(label) ? label : "System"
+  const key = String(value ?? "").toLowerCase()
+  return KNOWN_TYPES.includes(key) ? key : "system"
 }
 
 function isRead(n) {

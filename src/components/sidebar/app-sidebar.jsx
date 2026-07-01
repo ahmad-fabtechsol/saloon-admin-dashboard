@@ -5,6 +5,7 @@ import {
   BarChart2,
   Bell,
   CalendarDays,
+  ChevronRight,
   ClipboardCheck,
   Home,
   LogOut,
@@ -20,6 +21,11 @@ import ConfirmDialog from "@/components/ConfirmDialog"
 import UserAvatar from "@/components/UserAvatar"
 import whiteLogo from "@/assets/dark-logo.png"
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
+import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -31,6 +37,9 @@ import {
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
 
@@ -42,11 +51,20 @@ const navMain = [
   { title: "Bookings", url: "/bookings", icon: CalendarDays },
 ]
 
+// System items. Notifications carries `children`, so it renders as a
+// collapsible dropdown with its list + settings sub-pages.
 const navSystem = [
-  { title: "Reports",       url: "/reports",       icon: BarChart2 },
-  { title: "Feedback",      url: "/feedback",      icon: MessageSquare },
-  { title: "Notifications", url: "/notifications", icon: Bell },
-  { title: "Settings",      url: "/settings",      icon: Settings2 },
+  { title: "Reports",  url: "/reports",  icon: BarChart2 },
+  { title: "Feedback", url: "/feedback", icon: MessageSquare },
+  {
+    title: "Notifications",
+    icon: Bell,
+    children: [
+      { title: "All Notifications", url: "/notifications" },
+      { title: "Settings", url: "/notifications/settings" },
+    ],
+  },
+  { title: "Settings", url: "/settings", icon: Settings2 },
 ]
 
 export function AppSidebar({ ...props }) {
@@ -118,16 +136,53 @@ export function AppSidebar({ ...props }) {
           <SidebarGroupLabel>System</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navSystem.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url}>
-                    <Link to={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {navSystem.map((item) =>
+                item.children ? (
+                  <Collapsible
+                    key={item.title}
+                    asChild
+                    defaultOpen={item.children.some((c) => pathname === c.url)}
+                    className="group/collapsible"
+                  >
+                    <SidebarMenuItem>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton
+                          isActive={item.children.some((c) => pathname === c.url)}
+                        >
+                          <item.icon />
+                          <span>{item.title}</span>
+                          <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.children.map((child) => (
+                            <SidebarMenuSubItem key={child.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={pathname === child.url}
+                              >
+                                <Link to={child.url}>
+                                  <span>{child.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </SidebarMenuItem>
+                  </Collapsible>
+                ) : (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={pathname === item.url}>
+                      <Link to={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

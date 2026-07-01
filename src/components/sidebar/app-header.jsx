@@ -35,14 +35,18 @@ import {
   useMarkNotificationReadMutation,
   useMarkAllNotificationsReadMutation,
 } from "@/store/notification/notificationApiSlice"
+import { useNotificationSocket } from "@/hooks/useNotificationSocket"
 
 const routeLabels = {
   "/dashboard": ["Home", "Dashboard"],
   "/salons": ["Home", "Salons"],
+  "/approvals": ["Home", "Approvals"],
   "/customers": ["Home", "Customers"],
   "/bookings": ["Home", "Bookings"],
   "/reports": ["System", "Reports"],
   "/feedback": ["System", "Feedback"],
+  "/notifications": ["System", "Notifications"],
+  "/notifications/settings": ["Notifications", "Settings"],
   "/settings": ["System", "Settings"],
 }
 
@@ -85,9 +89,13 @@ function toNotificationItem(n) {
 export default function AppHeader() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const { user, token, logout } = useAuth()
   const [section, page] = routeLabels[pathname] ?? ["Home", "Page"]
   const [confirmLogout, setConfirmLogout] = useState(false)
+
+  // Global socket: connects while authenticated + online and refreshes the bell
+  // (and Notifications page) on the server's "new-notification" event.
+  useNotificationSocket(token)
 
   // Live unread notifications for the bell dropdown (badge + recent preview).
   const { data: unreadData } = useGetUnreadNotificationsQuery(

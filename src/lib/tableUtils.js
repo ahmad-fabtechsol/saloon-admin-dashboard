@@ -200,11 +200,16 @@ export const feedbackPriorityOptions = [
 // ─── Notifications ────────────────────────────────────────────────────────────
 // Used by: Notifications.jsx — type badge styles and filter tab config
 
+// Keyed by the API notification `type` (lowercase).
 export const notificationTypeConfig = {
-  Booking:  { cls: "bg-[#145E94]/10 text-[#145E94] ring-[#145E94]/20" },
-  Salon:    { cls: "bg-amber-50 text-amber-700 ring-amber-200" },
-  Customer: { cls: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
-  System:   { cls: "bg-slate-100 text-slate-600 ring-slate-200" },
+  message:      { label: "Message",      cls: "bg-[#145E94]/10 text-[#145E94] ring-[#145E94]/20" },
+  booking:      { label: "Booking",      cls: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
+  listing:      { label: "Listing",      cls: "bg-amber-50 text-amber-700 ring-amber-200" },
+  verification: { label: "Verification", cls: "bg-purple-50 text-purple-600 ring-purple-200" },
+  user:         { label: "User",         cls: "bg-blue-50 text-blue-600 ring-blue-200" },
+  flagged:      { label: "Flagged",      cls: "bg-red-50 text-red-600 ring-red-200" },
+  inquiry:      { label: "Inquiry",      cls: "bg-teal-50 text-teal-700 ring-teal-200" },
+  system:       { label: "System",       cls: "bg-slate-100 text-slate-600 ring-slate-200" },
 }
 
 export const notificationFilters = [
